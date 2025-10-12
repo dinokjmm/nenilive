@@ -1,73 +1,59 @@
-// src/App.jsx
-
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-
+ 
 // Asegúrate de reemplazar esta URL con la URL FINAL de tu API en RAILWAY (ej: https://[dominio].railway.app)
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Link } from 'react-router-dom'; // ⬅️ Importar elementos de routing
+import Catalogo from '../components/producto/Catalogo'; // ⬅️ (Tu componente actual que lista productos)
+import RegistroProducto from '../components/producto/RegistroProducto';
+
+// Nota: Tu componente de listado de productos debe ser algo como 'Catalogo' o 'Home'
+
 const API_URL = 'https://neni-system-api-production.up.railway.app/api/productos'; 
+// Asume que tienes un estado y función de fetch para tu catálogo
 
 function App() {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
+  // Función para cargar los datos del catálogo
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        // Llamada a la API que ya funciona
-        const response = await axios.get(`${API_URL}/catalogo`);
-        setProductos(response.data);
-      } catch (err) {
-        console.error('Error al cargar el catálogo:', err);
-        setError("Error al cargar los datos. Verifica la API.");
+        const response = await fetch(API_URL+"/catalogo");
+        const data = await response.json();
+        setProductos(data);
+      } catch (error) {
+        console.error("Error al obtener el catálogo:", error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchProductos();
-  }, []); // El array vacío [] asegura que se ejecute solo una vez al inicio
-
-  if (loading) return <div>Cargando Catálogo...</div>;
-  if (error) return <div>{error}</div>;
+  }, []); // Se ejecuta solo una vez al inicio
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Catálogo en Existencia ({productos.length})</h1>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-        {productos.length > 0 ? (
-          productos.map(p => (
-            <div key={p.codigo} style={cardStyle}>
-              <img src={p.fotos[0] || 'placeholder.jpg'} alt={p.descripcion} style={imgStyle} />
-              <h2>{p.codigo} - {p.descripcion}</h2>
-              <p style={{ fontWeight: 'bold', color: '#007bff' }}>
-                Precio: ${p.precio_local.toFixed(2)}
-              </p>
-              {/* Ocultamos el estatus, solo mostramos el precio y el código */}
-              <p style={{ fontSize: '0.8em', color: '#666' }}>Tallas: {p.tallas}</p>
-            </div>
-          ))
-        ) : (
-          <div>¡Vaya! No hay productos disponibles en este momento.</div>
-        )}
+    <div>
+      {/* Menú de Navegación */}
+      <nav style={{ padding: '10px', background: '#f0f0f0' }}>
+       </nav>
+
+      <div style={{ padding: '20px' }}>
+        {/* Definición de Rutas */}
+        <Routes>
+          {/* 1. Ruta principal: Muestra el Catálogo */}
+          <Route 
+            path="/" 
+            element={<Catalogo productos={productos} loading={loading} />} 
+          />
+          
+          {/* 2. Ruta para el Formulario: Muestra el Registro */}
+          <Route 
+            path="/registro" 
+            element={<RegistroProducto />} 
+          />
+        </Routes>
       </div>
     </div>
   );
 }
-
-// Estilos básicos para hacerlo móvil-friendly
-const cardStyle = {
-  border: '1px solid #ddd',
-  borderRadius: '8px',
-  padding: '10px',
-  textAlign: 'center',
-};
-
-const imgStyle = {
-  width: '100%',
-  height: 'auto',
-  borderRadius: '4px',
-  marginBottom: '10px'
-};
 
 export default App;

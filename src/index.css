@@ -66,3 +66,139 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Estilos Globales para el Catálogo */
+.product-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px; /* Espacio entre tarjetas */
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Estilo Base de la Tarjeta */
+.product-card {
+    width: 300px; /* Ancho fijo de la tarjeta */
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden; /* Asegura que la imagen no se salga del borde */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    background-color: #fff;
+}
+
+.product-card:hover {
+    transform: translateY(-5px); /* Efecto de elevación */
+}
+
+/* === Estilos del Carrusel === */
+.image-carousel-container {
+    position: relative;
+    width: 300px;
+    height: 300px;
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    /* object-fit: cover es la clave para la uniformidad */
+    object-fit: cover; 
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    z-index: 10;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.carousel-btn.prev {
+    left: 10px;
+    border-radius: 5px 0 0 5px;
+}
+
+.carousel-btn.next {
+    right: 10px;
+    border-radius: 0 5px 5px 0;
+}
+
+.carousel-indicator {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+/* === Estilos de la Información === */
+.product-info {
+    padding: 15px;
+    text-align: left;
+}
+
+.product-code {
+    font-size: 1.5em;
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.product-description-short {
+    color: #666;
+    margin-bottom: 10px;
+    min-height: 30px; /* Para mantener la altura si la descripción es corta */
+}
+
+/* Estilos de la Sección PUJA (Destacada) */
+.bid-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f7f7f7;
+    padding: 8px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.bid-label {
+    color: #CC0000; /* Color rojo para destacar */
+    font-size: 1.1em;
+    margin-right: 10px;
+}
+
+.bid-detail {
+    color: #007bff; /* Color azul para tallas */
+    flex-grow: 1;
+    text-align: center;
+}
+
+.bid-price {
+    font-size: 1.2em;
+    color: #388e3c; /* Color verde para el precio */
+}
+
+.real-price {
+   font-size: 0.9em; /* Más pequeño que el precio final */
+    color: #888;     /* Gris para indicar que ya no es válido */
+    margin-right: 10px; 
+    
+    /* ⬅️ CLAVE: TACHAR EL TEXTO */
+    text-decoration: line-through; 
+}
+
+.category-details p {
+    font-size: 0.85em;
+    color: #888;
+    margin: 3px 0;
+}
