@@ -1,204 +1,367 @@
+/* ========================================================= /
+/ === BASE Y RESETEOS GENERALES === /
+/ ========================================================= */
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+line-height: 1.5;
+font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+color: #34495e;
+background-color: #f8f8f8; /* Un gris muy claro para el fondo general */
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+body, #root {
+margin: 0;
+padding: 0;
+min-width: 320px;
+min-height: 100vh;
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+background-color: #f8f8f8;
+/* Mantenemos esta línea para solucionar el desbordamiento horizontal /
+overflow-x: hidden;
+}
+/ Estilos de enlaces globales */
+a {
+font-weight: 500;
+color: #007bff;
+text-decoration: none;
+transition: color 0.2s;
+}
+a:hover {
+color: #0056b3;
+}
+
+/* ========================================================= /
+/ === BANNER DE NAVEGACIÓN === /
+/ ========================================================= */
+
+.main-nav {
+background-color: #303952;
+padding: 15px 30px;
+box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+display: flex;
+gap: 30px;
+width: 100%; /* Ocupa el 100% del contenedor padre */
+box-sizing: border-box;
+position: sticky;
+top: 0;
+z-index: 1000;
+}
+
+.main-nav .nav-link {
+color: #ecf0f1;
+text-decoration: none;
+font-size: 1.1em;
+font-weight: 500;
+transition: color 0.2s;
+display: flex;
+align-items: center;
+}
+.main-nav .nav-link:hover {
+color: #a0a0a0;
+}
+.main-nav .nav-link i {
+margin-right: 8px;
+font-size: 1.2em;
+}
+
+/* ========================================================= /
+/ === CONTENIDO PRINCIPAL === /
+/ ========================================================= */
+
+#main-content {
+min-height: calc(100vh - 100px);
+padding: 20px;
+box-sizing: border-box;
+width: 100%;
+max-width: 1280px;
+margin: 0 auto;
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+font-size: 2.5em;
+color: #303952;
+margin-bottom: 30px;
+text-align: center;
+}
+h3 {
+font-size: 1.5em;
+color: #555;
+margin-top: 40px;
+margin-bottom: 15px;
+text-align: center;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
+/* ========================================================= /
+/ === BOTONES DE FILTRO === /
+/ ========================================================= */
+
+.filter-controls {
+text-align: center;
+margin-bottom: 20px;
+padding-bottom: 15px;
+border-bottom: 1px solid #e0e0e0;
+display: flex;
+justify-content: center;
+flex-wrap: wrap;
+gap: 10px;
 }
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.filter-controls.no-border {
+border-bottom: none;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.filter-controls button {
+padding: 10px 20px;
+border: 1px solid #ced4da;
+border-radius: 20px;
+font-size: 0.95em;
+background-color: #e9ecef;
+color: #495057;
+cursor: pointer;
+transition: all 0.3s ease;
+box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
-/* Estilos Globales para el Catálogo */
+.filter-controls button.active {
+background-color: #007bff;
+color: white;
+border-color: #007bff;
+box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+transform: translateY(-2px);
+}
+
+.filter-controls button:hover:not(.active) {
+background-color: #007bff;
+color: white;
+border-color: #007bff;
+box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+transform: translateY(-1px);
+}
+
+/* ========================================================= /
+/ === ESTILOS DEL CATÁLOGO Y PRODUCTOS (Tarjetas Bonitas) === /
+/ ========================================================= */
+
 .product-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 30px; /* Espacio entre tarjetas */
-    justify-content: center;
-    padding: 20px;
+display: flex;
+flex-wrap: wrap;
+gap: 20px;
+justify-content: center;
+padding: 20px 0;
 }
 
-/* Estilo Base de la Tarjeta */
 .product-card {
-    width: 300px; /* Ancho fijo de la tarjeta */
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    overflow: hidden; /* Asegura que la imagen no se salga del borde */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
-    background-color: #fff;
+width: 280px;
+border: 1px solid #e0e0e0;
+border-radius: 12px;
+overflow: hidden;
+box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+transition: transform 0.3s ease, box-shadow 0.3s ease;
+background-color: #fff;
+color: #333;
+text-align: left;
 }
 
 .product-card:hover {
-    transform: translateY(-5px); /* Efecto de elevación */
+transform: translateY(-8px) scale(1.02);
+box-shadow: 0 12px 25px rgba(0,0,0,0.15);
 }
 
-/* === Estilos del Carrusel === */
+/* --------------------------------------------------------- /
+/ === SECCIÓN CRÍTICA: CARRUSEL DE IMÁGENES === /
+/ --------------------------------------------------------- */
+
+/* Contenedor de la Imagen /*/
 .image-carousel-container {
-    position: relative;
-    width: 300px;
-    height: 300px;
+ position: relative;
+width: 100%;
+height: 280px;  
+background-color: #fff9f900;
+display: flex;
+justify-content: center;
+align-items: center;
+border-bottom: 1px solid #eee;
 }
 
 .product-image {
-    width: 100%;
-    height: 100%;
-    /* object-fit: cover es la clave para la uniformidad */
-    object-fit: cover; 
+max-width: 100%;
+max-height: 100%;
+object-fit: contain; /* CLAVE: asegura que toda la imagen se vea */
+border-radius: 10px 10px 0 0;
 }
 
+/* Estilos de Botones (Carousel Buttons) /*/
 .carousel-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.5);
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    z-index: 10;
-    font-size: 18px;
-    line-height: 1;
+ position: absolute;
+top: 50%;
+transform: translateY(-50%);
+
+/* Diseño (Grande, semi-transparente, cuadrado) */
+background-color: rgba(0, 0, 0, 0.5);
+color: white;
+border: none;
+padding: 0;
+cursor: pointer;
+z-index: 10;
+font-size: 1.5em; 
+line-height: 1; 
+width: 40px; 
+height: 40px; 
+border-radius: 4px; 
+display: flex;
+justify-content: center;
+align-items: center;
+transition: background-color 0.2s;
+
+}
+
+.carousel-btn:hover {
+background-color: rgba(0, 0, 0, 0.7);
 }
 
 .carousel-btn.prev {
-    left: 10px;
-    border-radius: 5px 0 0 5px;
+left: 10px; /* Posición izquierda */
 }
 
 .carousel-btn.next {
-    right: 10px;
-    border-radius: 0 5px 5px 0;
+right: 10px; /* Posición derecha */
 }
 
+/* Estilos del Indicador de Página /*/
 .carousel-indicator {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    padding: 3px 8px;
-    border-radius: 5px;
-    font-size: 12px;
+ 
+position: absolute;
+bottom: 10px;
+right: 10px;
+background-color: rgba(0, 0, 0, 0.6);
+color: white;
+padding: 4px 8px;
+border-radius: 4px;
+font-size: 0.9em;
+font-weight: 500;
+z-index: 10;
 }
 
-/* === Estilos de la Información === */
+/* --------------------------------------------------------- /
+/ === FIN CARRUSEL === /
+/ --------------------------------------------------------- */
+
+/* Sección de Información del Producto */
 .product-info {
-    padding: 15px;
-    text-align: left;
+padding: 15px;
 }
 
 .product-code {
-    font-size: 1.5em;
-    margin-top: 0;
-    margin-bottom: 5px;
-    color: #333;
+font-size: 1.6em;
+font-weight: 600;
+margin-top: 0;
+margin-bottom: 8px;
+color: #303952;
+text-align: center; /* Asegura que el código esté centrado */
 }
 
 .product-description-short {
-    color: #666;
-    margin-bottom: 10px;
-    min-height: 30px; /* Para mantener la altura si la descripción es corta */
+color: #6c757d;
+font-size: 0.95em;
+margin-bottom: 15px;
+min-height: 25px;
+line-height: 1.4;
 }
 
-/* Estilos de la Sección PUJA (Destacada) */
+/* Precio normal (tachado) */
+.real-price {
+font-size: 0.95em;
+color: #a0a0a0;
+margin-right: 10px;
+text-decoration: line-through;
+font-weight: 400;
+}
+
+/* Sección de la PUJA / Oferta (El estilo que te gusta) */
 .bid-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #f7f7f7;
-    padding: 8px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    font-weight: bold;
+display: flex;
+justify-content: space-between;
+align-items: center;
+background-color: #f8f9fa;
+border-radius: 8px;
+padding: 8px 12px;
+margin-top: 15px;
+font-weight: bold;
+border: 1px   #ced4da;
 }
 
 .bid-label {
-    color: #CC0000; /* Color rojo para destacar */
-    font-size: 1.1em;
-    margin-right: 10px;
+color: #dc3545; /* Rojo para "PUJA" */
+font-size: 1.05em;
+margin-right: 10px;
 }
 
 .bid-detail {
-    color: #007bff; /* Color azul para tallas */
-    flex-grow: 1;
-    text-align: center;
+color: #007bff; /* Azul para el código de puja */
+flex-grow: 1;
+text-align: right;
+font-size: 1.0em;
 }
 
 .bid-price {
-    font-size: 1.2em;
-    color: #388e3c; /* Color verde para el precio */
+font-size: 1.3em;
+color: #28a745; /* Verde para el precio final */
+font-weight: 700;
+margin-left: 10px;
 }
 
-.real-price {
-   font-size: 0.9em; /* Más pequeño que el precio final */
-    color: #888;     /* Gris para indicar que ya no es válido */
-    margin-right: 10px; 
-    
-    /* ⬅️ CLAVE: TACHAR EL TEXTO */
-    text-decoration: line-through; 
-}
-
+/* Detalles de la categoría */
 .category-details p {
-    font-size: 0.85em;
-    color: #888;
-    margin: 3px 0;
+font-size: 0.8em;
+color: #888;
+margin: 10px 0 0 0;
+}
+
+/* Mensajes de No Productos */
+.no-products-message {
+font-size: 1.3em;
+color: #dc3545;
+margin-top: 50px;
+text-align: center;
+padding: 20px;
+background-color: #ffebeb;
+border: 1px solid #dc3545;
+border-radius: 8px;
+max-width: 600px;
+margin-left: auto;
+margin-right: auto;
+}
+
+/* ========================================================= /
+/ === AJUSTES RESPONSIVOS (PARA PANTALLAS PEQUEÑAS) === /
+/ ========================================================= */
+
+@media (max-width: 600px) {
+/* 1. Hacemos que la lista use el 100% y distribuye el espacio */
+.product-list {
+justify-content: space-between;
+padding: 10px;
+}
+
+/* 2. Hacemos que la tarjeta sea flexible para mostrar 2 por fila */
+.product-card {
+    /* Calcula 50% del ancho menos la mitad del gap (20px) */
+    width: calc(50% - 10px); 
+    font-size: 0.9em;
+}
+
+/* Pequeño ajuste para el título del producto */
+.product-code {
+    font-size: 1.2em; 
+}
+
+/* Ajuste para el bid-section */
+.bid-section {
+    padding: 6px 8px;
+    margin-top: 10px;
+}
+
 }

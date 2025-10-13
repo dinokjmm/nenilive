@@ -1,37 +1,28 @@
+/* src/App.css */
+
+/* ⬅️ Configuración principal del contenedor #root */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  max-width: 1280px; 
+  margin: 0 auto; 
   text-align: center;
+  /* El width: 100% asegura que ocupe todo el espacio de su padre (#root) */
+  width: 100%; 
 }
 
+/* ⬅️ CRÍTICO: Contenedor principal de la aplicación */
+#app-container {
+    /* Usamos 100% para ajustarse al #root, no 100vw */
+    width: 100%; 
+}
+
+/* El resto de tus estilos .logo, .card, etc. */
 .logo {
   height: 6em;
   padding: 1.5em;
   will-change: filter;
   transition: filter 300ms;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
+/* ... (otros estilos que no afectan el layout principal) ... */
 
 .card {
   padding: 2em;
