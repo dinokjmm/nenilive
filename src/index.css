@@ -342,6 +342,10 @@ margin-right: auto;
 / === AJUSTES RESPONSIVOS (PARA PANTALLAS PEQUEÑAS) === /
 / ========================================================= */
 
+/* ========================================================= /
+/ === AJUSTES RESPONSIVOS (PARA PANTALLAS PEQUEÑAS) === /
+/ ========================================================= */
+
 @media (max-width: 600px) {
 /* 1. Hacemos que la lista use el 100% y distribuye el espacio */
 .product-list {
@@ -349,39 +353,36 @@ justify-content: space-between;
 padding: 10px;
 }
 
-/* 2. CLAVE: Hacemos que la tarjeta sea flexible para mostrar 3 por fila /*/
-.product-card {
- 
-width: calc(33.33% - 14px);
-font-size: 0.7em; 
+ .product-card {
+ width: calc(50% - 10px);
+font-size: 0.9em;  
 box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
-
-/* Ajustes de tamaño en móvil para que el contenido quepa */
+ 
 .product-code {
-  font-size: 1.0em;
+  font-size: 1.2em;  
 }
 
 .bid-label, .bid-detail, .bid-price {
-font-size: 0.9em;
+font-size: 1.0em; /* Texto de puja más legible */
 }
 
 .bid-section {
-  padding: 4px 6px;
-  margin-top: 5px;
+ padding: 6px 8px;  
+  margin-top: 10px;
 }
 
-/* El contenedor del carrusel necesita adaptarse para que la imagen no sea diminuta /*/
-.image-carousel-container {
-height: 120px;  
+ .image-carousel-container {
+height: 180px;  
+}
+
 }
 
  
-}
-/* Media query para tablets o pantallas medianas que mantienen 3+ columnas /*/
 @media (min-width: 601px) and (max-width: 900px) {
 .product-card {
- width: calc(33.33% - 14px);
+ 
+width: calc(33.33% - 14px);
 }
 
 }
