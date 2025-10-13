@@ -21,9 +21,8 @@ min-height: 100vh;
 body {
 background-color: #f8f8f8;
 /* Mantenemos esta línea para solucionar el desbordamiento horizontal /
-overflow-x: hidden;
+overflow-x: hidden;*/
 }
-/ Estilos de enlaces globales */
 a {
 font-weight: 500;
 color: #007bff;
@@ -339,6 +338,10 @@ margin-right: auto;
 / === AJUSTES RESPONSIVOS (PARA PANTALLAS PEQUEÑAS) === /
 / ========================================================= */
 
+/* ========================================================= /
+/ === AJUSTES RESPONSIVOS (PARA PANTALLAS PEQUEÑAS) === /
+/ ========================================================= */
+
 @media (max-width: 600px) {
 /* 1. Hacemos que la lista use el 100% y distribuye el espacio */
 .product-list {
@@ -346,22 +349,39 @@ justify-content: space-between;
 padding: 10px;
 }
 
-/* 2. Hacemos que la tarjeta sea flexible para mostrar 2 por fila */
+/* 2. CLAVE: Hacemos que la tarjeta sea flexible para mostrar 3 por fila /*/
 .product-card {
-    /* Calcula 50% del ancho menos la mitad del gap (20px) */
-    width: calc(50% - 10px); 
-    font-size: 0.9em;
+ 
+width: calc(33.33% - 14px);
+font-size: 0.7em; 
+box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-/* Pequeño ajuste para el título del producto */
+/* Ajustes de tamaño en móvil para que el contenido quepa */
 .product-code {
-    font-size: 1.2em; 
+  font-size: 1.0em;
 }
 
-/* Ajuste para el bid-section */
+.bid-label, .bid-detail, .bid-price {
+font-size: 0.9em;
+}
+
 .bid-section {
-    padding: 6px 8px;
-    margin-top: 10px;
+  padding: 4px 6px;
+  margin-top: 5px;
+}
+
+/* El contenedor del carrusel necesita adaptarse para que la imagen no sea diminuta /*/
+.image-carousel-container {
+height: 120px;  
+}
+
+ 
+}
+/* Media query para tablets o pantallas medianas que mantienen 3+ columnas /*/
+@media (min-width: 601px) and (max-width: 900px) {
+.product-card {
+ width: calc(33.33% - 14px);
 }
 
 }
