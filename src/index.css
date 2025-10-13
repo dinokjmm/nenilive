@@ -337,18 +337,16 @@ margin-right: auto;
 /* ========================================================= /
 / === AJUSTES RESPONSIVOS (PARA PANTALLAS PEQUEÑAS) === /
 / ========================================================= */
- 
 
 @media (max-width: 600px) {
-/* 1. Hacemos que la lista use el 100% y distribuye el espacio */
-.product-list {
+ .product-list {
 justify-content: space-between;
-padding: 10px;
+ padding: 10px 0;
 }
 
  .product-card {
- width: calc(50% - 10px);
-font-size: 0.85em;  
+ width: 49%;
+font-size: 0.85em; 
 box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
@@ -356,13 +354,12 @@ box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   font-size: 1.1em;  
 }
 
- 
-.product-description-short, .real-price {
+ .product-description-short, .real-price {
 font-size: 0.8em;  
 }
 
 .bid-label, .bid-detail, .bid-price {
-font-size: 0.9em;  
+font-size: 0.9em; /* Reducimos la fuente de la PUJA */
 }
 
 .bid-section {
@@ -370,8 +367,7 @@ font-size: 0.9em;
   margin-top: 8px;
 }
 
- 
-.image-carousel-container {
+ .image-carousel-container {
 height: 200px;  
 }
 
@@ -380,7 +376,6 @@ height: 200px;
  
 @media (min-width: 601px) and (max-width: 900px) {
 .product-card {
- 
-width: calc(33.33% - 14px);
+ width: calc(33.33% - 14px);
 }
 }

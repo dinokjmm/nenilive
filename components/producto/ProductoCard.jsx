@@ -112,10 +112,10 @@ const ProductoCard = ({ producto }) => {
 
                 {/* Texto de PUJA: (Detalles Clave) */}
                 <div className="bid-section">
-                    <span className="bid-label">{codigoPujaInicial} {tallasTexto} </span>
-                    {/* <span className="bid-detail">
-                        Muestra el código corto estático y las tallas 
-                         {tallasTexto}</span>*/}
+                    <span className="bid-label">{codigoPujaInicial}   </span>
+                     
+                        <span className="bid-detail">
+                          {tallasTexto}</span> 
                     
                     <span className="bid-price">${producto.precio_live.toFixed(2)}</span>
                 </div>
