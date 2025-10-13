@@ -337,14 +337,7 @@ margin-right: auto;
 /* ========================================================= /
 / === AJUSTES RESPONSIVOS (PARA PANTALLAS PEQUEÑAS) === /
 / ========================================================= */
-
-/* ========================================================= /
-/ === AJUSTES RESPONSIVOS (PARA PANTALLAS PEQUEÑAS) === /
-/ ========================================================= */
-
-/* ========================================================= /
-/ === AJUSTES RESPONSIVOS (PARA PANTALLAS PEQUEÑAS) === /
-/ ========================================================= */
+ 
 
 @media (max-width: 600px) {
 /* 1. Hacemos que la lista use el 100% y distribuye el espacio */
@@ -355,25 +348,31 @@ padding: 10px;
 
  .product-card {
  width: calc(50% - 10px);
-font-size: 0.9em;  
+font-size: 0.85em;  
 box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
+
+ .product-code {
+  font-size: 1.1em;  
+}
+
  
-.product-code {
-  font-size: 1.2em;  
+.product-description-short, .real-price {
+font-size: 0.8em;  
 }
 
 .bid-label, .bid-detail, .bid-price {
-font-size: 1.0em; /* Texto de puja más legible */
+font-size: 0.9em;  
 }
 
 .bid-section {
- padding: 6px 8px;  
-  margin-top: 10px;
+  padding: 5px 7px; /* Más compacto */
+  margin-top: 8px;
 }
 
- .image-carousel-container {
-height: 180px;  
+ 
+.image-carousel-container {
+height: 200px;  
 }
 
 }
@@ -384,5 +383,4 @@ height: 180px;
  
 width: calc(33.33% - 14px);
 }
-
 }
