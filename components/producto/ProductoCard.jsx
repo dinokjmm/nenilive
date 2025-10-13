@@ -40,7 +40,7 @@ const ProductoCard = ({ producto }) => {
         const simplifiedNumber = parseInt(numericPart, 10).toString();
 
         // 3. Reensambla el código en el formato corto: DZAP-1
-        return `${subcategoryPrefix} ${simplifiedNumber}`;
+        return `${subcategoryPrefix}${simplifiedNumber}`;
     };
     // -----------------------------------------------------------
 
@@ -112,11 +112,11 @@ const ProductoCard = ({ producto }) => {
 
                 {/* Texto de PUJA: (Detalles Clave) */}
                 <div className="bid-section">
-                    <span className="bid-label">PUJA:</span>
-                    <span className="bid-detail">
-                        {/* Muestra el código corto estático y las tallas */}
-                        {codigoPujaInicial} {tallasTexto}
-                    </span>
+                    <span className="bid-label">{codigoPujaInicial} {tallasTexto} </span>
+                    {/* <span className="bid-detail">
+                        Muestra el código corto estático y las tallas 
+                         {tallasTexto}</span>*/}
+                    
                     <span className="bid-price">${producto.precio_live.toFixed(2)}</span>
                 </div>
 
