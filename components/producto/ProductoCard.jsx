@@ -105,7 +105,9 @@ const ProductoCard = ({ producto }) => {
             <div className="product-info">
                 
                 {/* Códigos y Descripción */}
-                <h3 className="product-code">{producto.codigo}</h3>
+                <h3 className="product-code">{producto.codigo} </h3>
+                               
+
                 <span className="real-price">${producto.precio_local.toFixed(2)}</span>
 
                 <hr />

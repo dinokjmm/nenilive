@@ -24,12 +24,10 @@ const CATEGORIAS_GENERO = [
 // coincide con el valor guardado en 'subcategoriaSeleccionada'.
 const SUBCATEGORIAS_TIPO = [
   'ZAPATOS', 
-  'BLUSAS',  
-  'PANTALONES', 
-  'VESTIDOS', 
+  'ROPA', 
   'DEPORTIVO',
-  'CASUAL', 
   'INTERIOR', 
+  'ACCESORIOS', 
 ];
 
 
