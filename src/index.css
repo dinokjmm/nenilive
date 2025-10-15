@@ -254,10 +254,10 @@ padding: 15px;
 }
 
 .product-code {
-font-size: 1.6em;
+font-size: 1.0em;
 font-weight: 600;
 margin-top: 0;
-margin-bottom: 8px;
+margin-bottom: -13px;
 color: #303952;
 text-align: center; /* Asegura que el código esté centrado */
 }
@@ -265,9 +265,11 @@ text-align: center; /* Asegura que el código esté centrado */
 .product-description-short {
 color: #6c757d;
 font-size: 0.95em;
-margin-bottom: 15px;
+margin-bottom: 5px;
 min-height: 25px;
 line-height: 1.4;
+text-align: center; /* Asegura que el código esté centrado */
+
 }
 
 /* Precio normal (tachado) */
