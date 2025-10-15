@@ -13,7 +13,7 @@ const ProductoCard = ({ producto }) => {
     const LIVE_START_DAY = 6;      // Sábado
     const LIVE_START_HOUR = 9;     // 9:00 am (inclusive)
 
-    const LIVE_END_DAY = 5;        // Martes
+    const LIVE_END_DAY = 2;        // Martes
     const LIVE_END_HOUR = 22;      // 12:00 pm (exclusive)
     // ==========================================================
 
