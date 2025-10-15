@@ -13,8 +13,8 @@ const ProductoCard = ({ producto }) => {
     const LIVE_START_DAY = 6;      // Sábado
     const LIVE_START_HOUR = 9;     // 9:00 am (inclusive)
 
-    const LIVE_END_DAY = 2;        // Martes
-    const LIVE_END_HOUR = 12;      // 12:00 pm (exclusive)
+    const LIVE_END_DAY = 5;        // Martes
+    const LIVE_END_HOUR = 22;      // 12:00 pm (exclusive)
     // ==========================================================
 
     // === FIX 1: Verificación de seguridad para la prop 'producto' ===
@@ -127,8 +127,11 @@ const ProductoCard = ({ producto }) => {
                 <p className="product-code">{producto.codigo}</p>
 
                 <p className="product-description-short">{producto.descripcion}</p>
-                <span className="real-price">${producto.precio_local.toFixed(2)}</span>
-
+               
+               {mostrarLiveSection &&(
+                 <span className="real-price">${producto.precio_local.toFixed(2)}</span>)}
+               {!mostrarLiveSection &&(
+                 <span className="bid-price">${producto.precio_local.toFixed(2)}</span>)}
                 <hr />
 
                 {/* Texto de PUJA: (Detalles Clave) 
