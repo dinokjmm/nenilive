@@ -1,4 +1,3 @@
- 
 import React, { useState, useEffect } from 'react';
 
 // URL de tu API en Railway
@@ -16,15 +15,15 @@ const DUENOS_PROVEEDORES = [
     { codigo: 'D', nombre: 'Dani' },
     { codigo: 'V', nombre: 'Vale' },
     { codigo: 'L', nombre: 'Daniel' },
-]
+];
 
 function RegistroProducto() {
     const [reglasCategorias, setReglasCategorias] = useState([]); 
     const [formData, setFormData] = useState({
         // CAMPOS DE CLASIFICACIÓN
         dueñoSeleccionado: DUENOS_PROVEEDORES[0].codigo, 
-        categoriaBase: '', // Se inicializará en useEffect
-        subcategoriaSeleccionada: '', // Se inicializará en useEffect
+        categoriaBase: '',
+        subcategoriaSeleccionada: '',
         
         // CAMPOS DE DETALLES
         descripcion: '',
@@ -33,8 +32,15 @@ function RegistroProducto() {
         precio_live: '',
         estatus: 'disponible', 
         tallas: '', 
-        fotos: '' 
+        fotos: '',
+        
+        // NUEVOS CAMPOS PARA CÓDIGO MANUAL
+        codigo: '', 
     });
+    
+    // NUEVO ESTADO para controlar si se usa el código manual o la generación automática
+    const [usoCodigoManual, setUsoCodigoManual] = useState(false); 
+
     const [mensaje, setMensaje] = useState('');
     const [loadingReglas, setLoadingReglas] = useState(true);
 
@@ -74,7 +80,7 @@ function RegistroProducto() {
         fetchReglas();
     }, []);
 
-    // Maneja los cambios de todos los campos, EXCEPTO categoriaBase
+    // Maneja los cambios de todos los campos
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -98,18 +104,30 @@ function RegistroProducto() {
         e.preventDefault();
         setMensaje('Registrando...');
 
-        // CRÍTICO: Validar que los campos de clasificación tengan valor
-        if (!formData.dueñoSeleccionado || !formData.categoriaBase || !formData.subcategoriaSeleccionada) {
-            setMensaje('❌ Por favor, selecciona Dueño, Categoría Base y Subcategoría antes de registrar.');
-            return;
+        // 1. VALIDACIÓN
+        if (usoCodigoManual) {
+            // Validar código manual
+            if (!formData.codigo.trim()) {
+                setMensaje('❌ Si activaste el Código Manual, debes ingresar un valor.');
+                return;
+            }
+        } else {
+            // Validar clasificación si es automático
+            if (!formData.dueñoSeleccionado || !formData.categoriaBase || !formData.subcategoriaSeleccionada) {
+                setMensaje('❌ Por favor, selecciona Dueño, Categoría Base y Subcategoría antes de registrar.');
+                return;
+            }
         }
 
-        // 1. CONVERTIR y CREAR OBJETO DE DATOS
+        // 2. CONVERTIR y CREAR OBJETO DE DATOS
         const dataToSend = {
-            // Se envían los 5 campos clave para la generación del código en el backend y para guardar
+            // Si se usa el código manual, se incluye para que el backend lo use como el código final.
+            ...(usoCodigoManual && { codigo: formData.codigo.trim().toUpperCase() }), 
+            
+            // Los campos de clasificación deben enviarse siempre para fines de data warehousing/filtros
             dueñoSeleccionado: formData.dueñoSeleccionado,
-            categoriaBase: formData.categoriaBase, // ⬅️ ENVIADO
-            subcategoriaSeleccionada: formData.subcategoriaSeleccionada, // ⬅️ ENVIADO
+            categoriaBase: formData.categoriaBase, 
+            subcategoriaSeleccionada: formData.subcategoriaSeleccionada, 
 
             descripcion: formData.descripcion,
             // Convertir valores numéricos y arrays
@@ -135,21 +153,29 @@ function RegistroProducto() {
                 setMensaje(`✅ Producto registrado con éxito! Código: ${productoRegistrado.codigo}`);
                 
                 // Limpiar formulario manteniendo las selecciones de clasificación
-                const defaultBase = reglasCategorias[0]?.categoriaBase || '';
-                const defaultSub = reglasCategorias[0]?.subcategorias[0]?.nombre || '';
+                const currentBase = formData.categoriaBase;
+                const currentSub = formData.subcategoriaSeleccionada;
 
                 setFormData({ 
-                    dueñoSeleccionado: DUENOS_PROVEEDORES[0].codigo, 
-                    categoriaBase: defaultBase, 
-                    subcategoriaSeleccionada: defaultSub,
+                    dueñoSeleccionado: formData.dueñoSeleccionado, 
+                    categoriaBase: currentBase, 
+                    subcategoriaSeleccionada: currentSub,
                     descripcion: '', cantidad: '1', precio_local: '', precio_live: '', 
-                    estatus: 'disponible', tallas: '', fotos: '' 
+                    estatus: 'disponible', tallas: '', fotos: '',
+                    codigo: '' // Limpiar código manual
                 });
+                setUsoCodigoManual(false); // Resetear el toggle
             } else {
                 const errorData = await response.json();
-                setMensaje(`❌ Error al registrar: ${errorData.message || response.statusText}`);
+                // Manejar error 409 (Conflicto) para código duplicado
+                if (response.status === 409) {
+                     setMensaje(`❌ Error al registrar: ${errorData.message || 'El código ingresado ya existe. Intenta con otro o verifica el inventario.'}`);
+                } else {
+                    setMensaje(`❌ Error al registrar: ${errorData.message || response.statusText}`);
+                }
             }
         } catch (error) {
+            console.error(error);
             setMensaje('❌ Error de conexión con la API.');
         }
     };
@@ -163,6 +189,9 @@ function RegistroProducto() {
     );
     const subcategoriaPrefijo = subcategoriaRegla?.prefijo || 'SC';
     const categoriaPrefijo = formData.categoriaBase ? formData.categoriaBase[0] : 'C'; // Primera letra de la categoría base
+
+    // Previsualización del código automático
+    const codigoPreview = `${formData.dueñoSeleccionado}-${categoriaPrefijo}${subcategoriaPrefijo}-0001`;
 
     // ----------------------------------------------------
     // Lógica de Renderizado
@@ -181,6 +210,7 @@ function RegistroProducto() {
     const labelStyle = { fontWeight: '600', marginBottom: '5px', display: 'block', color: '#303952' };
     const containerStyle = { padding: '20px', maxWidth: '600px', margin: 'auto', backgroundColor: 'white', borderRadius: '10px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' };
     const selectStyle = { ...inputStyle, appearance: 'none' };
+    const disabledStyle = { ...inputStyle, backgroundColor: '#f5f5f5', color: '#999', cursor: 'not-allowed' };
 
 
     return (
@@ -196,75 +226,108 @@ function RegistroProducto() {
 
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '20px' }}>
                 
-                {/* 1. SECCIÓN DE CLASIFICACIÓN (GENERACIÓN AUTOMÁTICA) */}
-                <h3 style={{ margin: '0', color: '#303952', fontSize: '1.1rem' }}>Clasificación para Código Único</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
-                    
-                    {/* Dueño/Marca */}
-                    <div>
-                        <label style={labelStyle}>Dueño/Marca:</label>
-                        <select
-                            name="dueñoSeleccionado"
-                            value={formData.dueñoSeleccionado}
-                            onChange={handleChange}
-                            style={selectStyle}
-                        >
-                            {DUENOS_PROVEEDORES.map(dueno => (
-                                <option key={dueno.codigo} value={dueno.codigo}>
-                                    {dueno.nombre}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Categoría Base (Género/Público) */}
-                    <div>
-                        <label style={labelStyle}>Categoría Base (Género):</label>
-                        <select
-                            name="categoriaBase"
-                            value={formData.categoriaBase}
-                            onChange={handleBaseChange} // Usa el handler especial para resetear la subcategoría
-                            style={selectStyle}
-                        >
-                            {reglasCategorias.map(regla => (
-                                <option key={regla.categoriaBase} value={regla.categoriaBase}>
-                                    {regla.categoriaBase}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Subcategoría (Tipo de Producto) */}
-                    <div>
-                        <label style={labelStyle}>Subcategoría (Tipo):</label>
-                        <select
-                            name="subcategoriaSeleccionada"
-                            value={formData.subcategoriaSeleccionada}
-                            onChange={handleChange}
-                            style={selectStyle}
-                            // Deshabilita si no hay categorías cargadas
-                            disabled={!reglaActiva || reglaActiva.subcategorias.length === 0}
-                        >
-                            {reglaActiva && reglaActiva.subcategorias.map(sub => (
-                                <option key={sub.nombre} value={sub.nombre}>
-                                    {sub.nombre} ({sub.prefijo})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                {/* 0. SECCIÓN DE OPCIÓN DE CÓDIGO MANUAL */}
+                <h3 style={{ margin: '0', color: '#303952', fontSize: '1.1rem', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>Código de Producto</h3>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px', border: '1px solid #ddd' }}>
+                    <label style={{ fontWeight: '600', color: '#303952' }}>Usar Código Manual</label>
+                    <input
+                        type="checkbox"
+                        checked={usoCodigoManual}
+                        onChange={(e) => setUsoCodigoManual(e.target.checked)}
+                        style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                    />
                 </div>
 
-                {/* Preview del Código */}
-                <p style={{ marginTop: '5px', padding: '10px', backgroundColor: '#f4f7f9', borderRadius: '5px', borderLeft: '3px solid #303952' }}>
-                    <span style={{ fontWeight: 'bold', color: '#303952' }}>Preview del Código:</span> 
-                    <span style={{ fontFamily: 'monospace', fontWeight: '600', color: '#007bff' }}>
-                        {/* Ejemplo: J-DRI-0001 (Donde DRI es D + RI) */}
-                        {formData.dueñoSeleccionado}-{categoriaPrefijo}{subcategoriaPrefijo}-0001
-                    </span>
-                </p>
+                {usoCodigoManual ? (
+                    /* CÓDIGO MANUAL ACTIVO */
+                    <div>
+                        <label style={labelStyle}>Código Único Manual:</label>
+                        <input
+                            type="text"
+                            name="codigo"
+                            value={formData.codigo}
+                            onChange={handleChange}
+                            style={{ ...inputStyle, borderColor: '#007bff', fontWeight: 'bold' }}
+                            placeholder="Ej: J-VEST-0042 o 12345"
+                            required
+                        />
+                        <p style={{ fontSize: '0.8rem', color: '#007bff', marginTop: '5px' }}>
+                            ⚠ El código manual tiene prioridad. Asegúrate de que sea único.
+                        </p>
+                    </div>
+                ) : (
+                    /* CLASIFICACIÓN AUTOMÁTICA ACTIVA */
+                    <>
+                        <h3 style={{ margin: '0', color: '#303952', fontSize: '1.1rem' }}>Clasificación para Código Automático</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px' }}>
+                            
+                            {/* Dueño/Marca */}
+                            <div>
+                                <label style={labelStyle}>Dueño/Marca:</label>
+                                <select
+                                    name="dueñoSeleccionado"
+                                    value={formData.dueñoSeleccionado}
+                                    onChange={handleChange}
+                                    style={selectStyle}
+                                >
+                                    {DUENOS_PROVEEDORES.map(dueno => (
+                                        <option key={dueno.codigo} value={dueno.codigo}>
+                                            {dueno.nombre}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Categoría Base (Género/Público) */}
+                            <div>
+                                <label style={labelStyle}>Categoría Base (Género):</label>
+                                <select
+                                    name="categoriaBase"
+                                    value={formData.categoriaBase}
+                                    onChange={handleBaseChange} // Usa el handler especial para resetear la subcategoría
+                                    style={selectStyle}
+                                >
+                                    {reglasCategorias.map(regla => (
+                                        <option key={regla.categoriaBase} value={regla.categoriaBase}>
+                                            {regla.categoriaBase}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Subcategoría (Tipo de Producto) */}
+                            <div>
+                                <label style={labelStyle}>Subcategoría (Tipo):</label>
+                                <select
+                                    name="subcategoriaSeleccionada"
+                                    value={formData.subcategoriaSeleccionada}
+                                    onChange={handleChange}
+                                    style={selectStyle}
+                                    // Deshabilita si no hay categorías cargadas
+                                    disabled={!reglaActiva || reglaActiva.subcategorias.length === 0}
+                                >
+                                    {reglaActiva && reglaActiva.subcategorias.map(sub => (
+                                        <option key={sub.nombre} value={sub.nombre}>
+                                            {sub.nombre} ({sub.prefijo})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        {/* Preview del Código Automático */}
+                        <p style={{ marginTop: '5px', padding: '10px', backgroundColor: '#f4f7f9', borderRadius: '5px', borderLeft: '3px solid #303952' }}>
+                            <span style={{ fontWeight: 'bold', color: '#303952' }}>Preview del Código Automático:</span> 
+                            <span style={{ fontFamily: 'monospace', fontWeight: '600', color: '#007bff' }}>
+                                {codigoPreview}
+                            </span>
+                        </p>
+                    </>
+                )}
+
 
                 {/* 2. SECCIÓN DE DETALLES DEL PRODUCTO */}
-                <h3 style={{ margin: '0', marginTop: '15px', color: '#303952', fontSize: '1.1rem' }}>Detalles y Precios</h3>
+                <h3 style={{ margin: '0', marginTop: '15px', color: '#303952', fontSize: '1.1rem', borderTop: '1px solid #eee', paddingTop: '10px' }}>Detalles y Precios</h3>
 
                 {/* Descripción */}
                 <div>
