@@ -123,7 +123,7 @@ const ProductoCard = ({ producto, isReserved }) => {
 
             {/* === 2. INFORMACIÓN DEL PRODUCTO === */}
             <div className="product-info">
-                 <p className="product-description-short"> {producto.codigo} <br /> {producto.descripcion}</p>
+                 <p className="product-description-short"> CODIGO: {producto.codigo} <br /> {producto.descripcion}</p>
                 {/* Precio local con tachado condicional */}
                 <span className={`real-price ${isReserved ? 'price--strikethrough' : ''}`}>
                     ${producto.precio_local.toFixed(2)}
@@ -136,7 +136,6 @@ const ProductoCard = ({ producto, isReserved }) => {
                     <div className="bid-section">
                         {/* El texto del código de puja ahora incluye el estado de apartado */}
                         <span className="bid-label">
-                            {codigoPujaInicial} 
                             {isReserved && <span className="reserved-indicator"> (APARTADO)</span>}
                         </span>
                         

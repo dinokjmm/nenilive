@@ -38,7 +38,7 @@ function RegistroProducto() {
         codigo: '', 
     });
     
-    // NUEVO ESTADO para controlar si se usa el código manual o la generación automática
+    // ESTADO para controlar si se usa el código manual o la generación automática
     const [usoCodigoManual, setUsoCodigoManual] = useState(false); 
 
     const [mensaje, setMensaje] = useState('');
@@ -105,26 +105,26 @@ function RegistroProducto() {
         setMensaje('Registrando...');
 
         // 1. VALIDACIÓN
-        if (usoCodigoManual) {
-            // Validar código manual
-            if (!formData.codigo.trim()) {
-                setMensaje('❌ Si activaste el Código Manual, debes ingresar un valor.');
-                return;
-            }
-        } else {
-            // Validar clasificación si es automático
-            if (!formData.dueñoSeleccionado || !formData.categoriaBase || !formData.subcategoriaSeleccionada) {
-                setMensaje('❌ Por favor, selecciona Dueño, Categoría Base y Subcategoría antes de registrar.');
-                return;
-            }
+        // Si el código manual está activado, se valida que el campo 'codigo' no esté vacío.
+        if (usoCodigoManual && !formData.codigo.trim()) {
+            setMensaje('❌ Si activaste el Código Manual, debes ingresar un valor.');
+            return;
         }
+        
+        // La clasificación SIEMPRE debe estar seleccionada ya que es requerida para la metadata.
+        if (!formData.dueñoSeleccionado || !formData.categoriaBase || !formData.subcategoriaSeleccionada) {
+            setMensaje('❌ Por favor, selecciona Dueño, Categoría Base y Subcategoría antes de registrar.');
+            return;
+        }
+
 
         // 2. CONVERTIR y CREAR OBJETO DE DATOS
         const dataToSend = {
             // Si se usa el código manual, se incluye para que el backend lo use como el código final.
+            // Si NO se usa (usoCodigoManual=false), este campo no se envía y el backend generará el código.
             ...(usoCodigoManual && { codigo: formData.codigo.trim().toUpperCase() }), 
             
-            // Los campos de clasificación deben enviarse siempre para fines de data warehousing/filtros
+            // Los campos de clasificación se envían siempre.
             dueñoSeleccionado: formData.dueñoSeleccionado,
             categoriaBase: formData.categoriaBase, 
             subcategoriaSeleccionada: formData.subcategoriaSeleccionada, 
@@ -210,7 +210,8 @@ function RegistroProducto() {
     const labelStyle = { fontWeight: '600', marginBottom: '5px', display: 'block', color: '#303952' };
     const containerStyle = { padding: '20px', maxWidth: '600px', margin: 'auto', backgroundColor: 'white', borderRadius: '10px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' };
     const selectStyle = { ...inputStyle, appearance: 'none' };
-    const disabledStyle = { ...inputStyle, backgroundColor: '#f5f5f5', color: '#999', cursor: 'not-allowed' };
+    // Usamos disabledStyle solo para el campo de subcategoría si no hay reglas.
+    const disabledStyle = { ...inputStyle, backgroundColor: '#f5f5f5', color: '#999', cursor: 'not-allowed' }; 
 
 
     return (
@@ -238,9 +239,9 @@ function RegistroProducto() {
                     />
                 </div>
 
-                {usoCodigoManual ? (
-                    /* CÓDIGO MANUAL ACTIVO */
-                    <div>
+                {/* CÓDIGO MANUAL ACTIVO (Condicionalmente visible) */}
+                {usoCodigoManual && (
+                    <div style={{ paddingBottom: '10px', borderBottom: '1px solid #eee' }}>
                         <label style={labelStyle}>Código Único Manual:</label>
                         <input
                             type="text"
@@ -252,78 +253,92 @@ function RegistroProducto() {
                             required
                         />
                         <p style={{ fontSize: '0.8rem', color: '#007bff', marginTop: '5px' }}>
-                            ⚠ El código manual tiene prioridad. Asegúrate de que sea único.
+                            ⚠ El código manual tiene prioridad y se usará como identificador único.
                         </p>
                     </div>
-                ) : (
-                    /* CLASIFICACIÓN AUTOMÁTICA ACTIVA */
-                    <>
-                        <h3 style={{ margin: '0', color: '#303952', fontSize: '1.1rem' }}>Clasificación para Código Automático</h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px' }}>
-                            
-                            {/* Dueño/Marca */}
-                            <div>
-                                <label style={labelStyle}>Dueño/Marca:</label>
-                                <select
-                                    name="dueñoSeleccionado"
-                                    value={formData.dueñoSeleccionado}
-                                    onChange={handleChange}
-                                    style={selectStyle}
-                                >
-                                    {DUENOS_PROVEEDORES.map(dueno => (
-                                        <option key={dueno.codigo} value={dueno.codigo}>
-                                            {dueno.nombre}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Categoría Base (Género/Público) */}
-                            <div>
-                                <label style={labelStyle}>Categoría Base (Género):</label>
-                                <select
-                                    name="categoriaBase"
-                                    value={formData.categoriaBase}
-                                    onChange={handleBaseChange} // Usa el handler especial para resetear la subcategoría
-                                    style={selectStyle}
-                                >
-                                    {reglasCategorias.map(regla => (
-                                        <option key={regla.categoriaBase} value={regla.categoriaBase}>
-                                            {regla.categoriaBase}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Subcategoría (Tipo de Producto) */}
-                            <div>
-                                <label style={labelStyle}>Subcategoría (Tipo):</label>
-                                <select
-                                    name="subcategoriaSeleccionada"
-                                    value={formData.subcategoriaSeleccionada}
-                                    onChange={handleChange}
-                                    style={selectStyle}
-                                    // Deshabilita si no hay categorías cargadas
-                                    disabled={!reglaActiva || reglaActiva.subcategorias.length === 0}
-                                >
-                                    {reglaActiva && reglaActiva.subcategorias.map(sub => (
-                                        <option key={sub.nombre} value={sub.nombre}>
-                                            {sub.nombre} ({sub.prefijo})
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                        
-                        {/* Preview del Código Automático */}
-                        <p style={{ marginTop: '5px', padding: '10px', backgroundColor: '#f4f7f9', borderRadius: '5px', borderLeft: '3px solid #303952' }}>
-                            <span style={{ fontWeight: 'bold', color: '#303952' }}>Preview del Código Automático:</span> 
-                            <span style={{ fontFamily: 'monospace', fontWeight: '600', color: '#007bff' }}>
-                                {codigoPreview}
-                            </span>
-                        </p>
-                    </>
                 )}
+                
+                {/* CLASIFICACIÓN (SIEMPRE VISIBLE) */}
+                <h3 style={{ margin: '0', color: '#303952', fontSize: '1.1rem' }}>Clasificación de Producto (Requerido)</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px' }}>
+                    
+                    {/* Dueño/Marca */}
+                    <div>
+                        <label style={labelStyle}>Dueño/Marca:</label>
+                        <select
+                            name="dueñoSeleccionado"
+                            value={formData.dueñoSeleccionado}
+                            onChange={handleChange}
+                            style={selectStyle}
+                            required
+                        >
+                            {DUENOS_PROVEEDORES.map(dueno => (
+                                <option key={dueno.codigo} value={dueno.codigo}>
+                                    {dueno.nombre}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Categoría Base (Género/Público) */}
+                    <div>
+                        <label style={labelStyle}>Categoría Base (Género):</label>
+                        <select
+                            name="categoriaBase"
+                            value={formData.categoriaBase}
+                            onChange={handleBaseChange} 
+                            style={selectStyle}
+                            required
+                        >
+                            {reglasCategorias.map(regla => (
+                                <option key={regla.categoriaBase} value={regla.categoriaBase}>
+                                    {regla.categoriaBase}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Subcategoría (Tipo de Producto) */}
+                    <div>
+                        <label style={labelStyle}>Subcategoría (Tipo):</label>
+                        <select
+                            name="subcategoriaSeleccionada"
+                            value={formData.subcategoriaSeleccionada}
+                            onChange={handleChange}
+                            style={selectStyle}
+                            // Deshabilitado solo si no hay reglas activas.
+                            disabled={!reglaActiva || reglaActiva.subcategorias.length === 0} 
+                            required
+                        >
+                            {!reglaActiva || reglaActiva.subcategorias.length === 0 ? (
+                                <option value="" disabled>Cargando...</option>
+                            ) : (
+                                reglaActiva.subcategorias.map(sub => (
+                                    <option key={sub.nombre} value={sub.nombre}>
+                                        {sub.nombre} ({sub.prefijo})
+                                    </option>
+                                ))
+                            )}
+                        </select>
+                    </div>
+                </div>
+                
+                {/* Preview del Código Automático (Siempre visible) */}
+                <p style={{ 
+                    marginTop: '5px', padding: '10px', borderRadius: '5px', 
+                    backgroundColor: usoCodigoManual ? '#f0f0f0' : '#f4f7f9', 
+                    borderLeft: `3px solid ${usoCodigoManual ? '#999' : '#303952'}` 
+                }}>
+                    <span style={{ fontWeight: 'bold', color: usoCodigoManual ? '#999' : '#303952' }}>Preview del Código Automático:</span> 
+                    <span style={{ fontFamily: 'monospace', fontWeight: '600', color: usoCodigoManual ? '#999' : '#007bff' }}>
+                        {codigoPreview}
+                    </span>
+                    {usoCodigoManual && (
+                        <span style={{ fontSize: '0.8rem', color: '#999', display: 'block' }}>
+                            (Clasificación para metadatos. El código final será el manual ingresado arriba.)
+                        </span>
+                    )}
+                </p>
 
 
                 {/* 2. SECCIÓN DE DETALLES DEL PRODUCTO */}
@@ -365,9 +380,8 @@ function RegistroProducto() {
                             style={selectStyle}
                         >
                             <option value="disponible">Disponible</option>
-                            <option value="apartado-live">Apartado (Live)</option>
-                            <option value="vendido-local">Vendido (Local)</option>
-                            <option value="vendido-live">Vendido (Live)</option>
+                            <option value="disponible-publico">Diponible al publico (Live)</option>
+
                         </select>
                     </div>
                 </div>
