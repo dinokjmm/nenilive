@@ -80,17 +80,18 @@ max-width: 1280px;
 margin: 0 auto;
 }
 
-h1 {
-font-size: 2.5em;
+h2 {
+font-size: 2.0em;
 color: #303952;
-margin-bottom: 30px;
+margin-top: -5px;
+margin-bottom: 15px;
 text-align: center;
 }
 h3 {
 font-size: 1.5em;
 color: #555;
-margin-top: 40px;
-margin-bottom: 15px;
+margin-top: 20px;
+margin-bottom: 5px;
 text-align: center;
 }
 
@@ -98,47 +99,134 @@ text-align: center;
 / === BOTONES DE FILTRO === /
 / ========================================================= */
 
+
+
+/* ========================================================= /
+/ === FILTROS MODERNOS PREMIUM CON ICONO ACTIVO === /
+
+/* ========================================================= */
+/* === CHIPS DE FILTRO ELEGANTES (TONOS NEUTROS) === */
+/* ========================================================= */
+
+.filter-chip {
+  padding: 6px 16px;              
+  border-radius: 24px;             
+  border: 1px solid #ccc;      
+  background-color: #f5f5f5;       
+  color: #555;
+  font-size: 0.85em;               
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  min-width: 60px;
+  text-align: center;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.filter-chip.active {
+  background: #333; /* Fondo oscuro elegante */
+  color: #fff;
+  border: 1px solid #333;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  animation: pulse 1.2s infinite;
+}
+
+.filter-chip.active::before {
+  content: "✔";
+  font-size: 0.75em;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+.filter-chip:hover:not(.active) {
+  background-color: #e0e0e0;
+  color: #333;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-1px);
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
+  50% { box-shadow: 0 8px 22px rgba(0,0,0,0.18); }
+  100% { box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
+}
+
+/* ========================================================= */
+/* === CONTENEDOR DE FILTROS === */
 .filter-controls {
-text-align: center;
-margin-bottom: 20px;
-padding-bottom: 15px;
-border-bottom: 1px solid #e0e0e0;
-display: flex;
-justify-content: center;
-flex-wrap: wrap;
-gap: 10px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e0e0e0;
 }
+
 .filter-controls.no-border {
-border-bottom: none;
+  border-bottom: none;
 }
 
-.filter-controls button {
-padding: 10px 20px;
-border: 1px solid #ced4da;
-border-radius: 20px;
-font-size: 0.95em;
-background-color: #e9ecef;
-color: #495057;
-cursor: pointer;
-transition: all 0.3s ease;
-box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+/* ========================================================= */
+/* === LISTA DE PRODUCTOS MÁS ESPACIOSA === */
+.product-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Más separación para que no se amontonen */
+  justify-content: center;
+  padding: 15px 0;
 }
 
-.filter-controls button.active {
-background-color: #007bff;
-color: white;
-border-color: #007bff;
-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-transform: translateY(-2px);
+/* Tarjetas un poco más grandes y con sombra elegante */
+.product-card {
+  width: 270px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: #fff;
+  color: #333;
+  text-align: left;
 }
 
-.filter-controls button:hover:not(.active) {
-background-color: #007bff;
-color: white;
-border-color: #007bff;
-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-transform: translateY(-1px);
+.product-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.15);
 }
+
+
+/* ========================================================= */
+/* === LISTA DE PRODUCTOS MÁS ESPACIOSA === */
+.product-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Más separación para que no se amontonen */
+  justify-content: center;
+  padding: 15px 0;
+}
+
+/* Tarjetas un poco más grandes y con sombra elegante */
+.product-card {
+  width: 270px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: #fff;
+  color: #333;
+  text-align: left;
+}
+
+.product-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+}
+
 
 /* ========================================================= /
 / === ESTILOS DEL CATÁLOGO Y PRODUCTOS (Tarjetas Bonitas) === /
@@ -337,6 +425,7 @@ margin-right: auto;
 }
 
 
+
 @media (max-width: 600px) {
 .product-list {
 display: grid;  
@@ -384,3 +473,4 @@ height: 200px;
 width: calc(33.33% - 14px);
 }
 }
+

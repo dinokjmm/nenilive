@@ -1,35 +1,43 @@
 // src/components/producto/Catalogo.jsx
-
-import React from 'react';
+import React, { useState } from 'react';
 import ProductCard from '../producto/ProductoCard'; // <-- AJUSTA ESTA RUTA si es diferente
 
-// 🔄 CAMBIO CLAVE 1: Recibimos las 4 props de doble filtro de App.js
 const Catalogo = ({ 
     productos, 
     loading, 
-    // Props de GÉNERO
     onFiltroGeneroChange, 
     filtroGeneroActivo, 
     categoriasGenero, 
-    // Props de TIPO
     onFiltroTipoChange, 
     filtroTipoActivo,
     subcategoriasTipo, 
 }) => {
 
-    // ❌ Eliminamos la función handleFiltroClick anterior que solo manejaba un filtro
-    
-    // 🔄 Función para el filtro de GÉNERO
-    const handleGeneroClick = (filtro) => {
-        // Al hacer clic en un género, reiniciamos el filtro de tipo para ver todos en esa categoría
-        onFiltroTipoChange('Ver Todo'); 
-        onFiltroGeneroChange(filtro);
+    const [paginaActual, setPaginaActual] = useState(1);
+    const productosPorPagina = 12;
+
+    // 🔹 Calcular índices de paginación
+    const indiceFinal = paginaActual * productosPorPagina;
+    const indiceInicial = indiceFinal - productosPorPagina;
+    const productosPagina = productos.slice(indiceInicial, indiceFinal);
+
+    const totalPaginas = Math.ceil(productos.length / productosPorPagina);
+
+    // 🔹 Cambiar página
+    const cambiarPagina = (numero) => {
+        setPaginaActual(numero);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // 🔄 Función para el filtro de TIPO
+    const handleGeneroClick = (filtro) => {
+        onFiltroTipoChange('Ver Todo'); 
+        onFiltroGeneroChange(filtro);
+        setPaginaActual(1);
+    };
+
     const handleTipoClick = (filtro) => {
-        // El filtro de género se mantiene, solo cambiamos el filtro de tipo
         onFiltroTipoChange(filtro);
+        setPaginaActual(1);
     };
 
     if (loading) {
@@ -38,89 +46,142 @@ const Catalogo = ({
 
     const totalProductos = productos.length;
 
-    // Determinamos qué filtro está activo para mostrar en el mensaje "No hay productos"
     const filtroActivoGeneral = filtroGeneroActivo !== 'Ver Todo' 
         ? filtroGeneroActivo 
         : (filtroTipoActivo !== 'Ver Todo' ? filtroTipoActivo : 'TODOS');
 
+    // 🔹 Render de los botones de paginación (reutilizable)
+    const renderPaginacion = () => (
+        totalPaginas > 1 && (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                margin: '10px 0 20px',
+                flexWrap: 'wrap',
+                gap: '4px'
+            }}>
+                <button 
+                    onClick={() => cambiarPagina(paginaActual - 1)} 
+                    disabled={paginaActual === 1}
+                    style={{
+                        padding: '4px 8px',
+                        borderRadius: '50%',
+                        border: '1px solid #ccc',
+                        background: paginaActual === 1 ? '#eee' : '#007bff',
+                        color: paginaActual === 1 ? '#999' : '#fff',
+                        cursor: paginaActual === 1 ? 'default' : 'pointer'
+                    }}
+                >
+                    ‹
+                </button>
+
+                {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((num) => (
+                    <button 
+                        key={num} 
+                        onClick={() => cambiarPagina(num)} 
+                        style={{
+                            width: '30px',
+                            height: '30px',
+                            borderRadius: '50%',
+                            border: '1px solid #ccc',
+                            background: num === paginaActual ? '#007bff' : '#f8f8f8',
+                            color: num === paginaActual ? '#fff' : '#333',
+                            fontSize: '14px',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        {num}
+                    </button>
+                ))}
+
+                <button 
+                    onClick={() => cambiarPagina(paginaActual + 1)} 
+                    disabled={paginaActual === totalPaginas}
+                    style={{
+                        padding: '4px 8px',
+                        borderRadius: '50%',
+                        border: '1px solid #ccc',
+                        background: paginaActual === totalPaginas ? '#eee' : '#007bff',
+                        color: paginaActual === totalPaginas ? '#999' : '#fff',
+                        cursor: paginaActual === totalPaginas ? 'default' : 'pointer'
+                    }}
+                >
+                    ›
+                </button>
+            </div>
+        )
+    );
 
     return (
         <div>
-            <h1>Catálogo en Existencia ({totalProductos})</h1>
-            
-            {/* ============================================== */}
-            {/* === PRIMERA FILA DE FILTROS: GÉNERO / PÚBLICO === */}
-            {/* ============================================== */}
-            <div className="filter-controls">
-                
-                {/* Botón de ver todo para GÉNERO */}
-                <button 
-                    // 🔄 Usamos el estado de GÉNERO
-                    className={filtroGeneroActivo === 'Ver Todo' ? 'active' : ''} 
-                    onClick={() => handleGeneroClick('Ver Todo')}
-                >
-                    Ver Todo
-                </button>
+            <h2>Catálogo en Existencia ({totalProductos})</h2>
 
-                {/* Botones de GÉNERO */}
-                {categoriasGenero.map((cat) => (
-                    <button 
-                        key={cat}
-                        // 🔄 Usamos el estado de GÉNERO
-                        className={filtroGeneroActivo === cat ? 'active' : ''} 
-                        // 🔄 Usamos la nueva función
-                        onClick={() => handleGeneroClick(cat)}
-                    >
-                        {cat}
-                    </button>
-                ))}
+            {/* === FILTROS GÉNERO === */}
+<div className="filter-controls">
+  {/* Botón Ver Todo */}
+  <button 
+    className={`filter-chip ${filtroGeneroActivo === 'Ver Todo' ? 'active' : ''}`} 
+    onClick={() => handleGeneroClick('Ver Todo')}
+  >
+    Ver Todo
+  </button>
+
+  {/* Botones de cada categoría */}
+  {categoriasGenero.map((cat) => (
+    <button 
+      key={cat}
+      className={`filter-chip ${filtroGeneroActivo === cat ? 'active' : ''}`} 
+      onClick={() => handleGeneroClick(cat)}
+    >
+      {cat}
+    </button>
+  ))}
+
             </div>
 
-            {/* ============================================== */}
-            {/* === SEGUNDA FILA DE FILTROS: TIPO DE PRODUCTO === */}
-            {/* ============================================== */}
-            <h3 style={{ marginTop: '20px', marginBottom: '10px', color: '#303952' }}>Filtrar por Tipo:</h3>
-            <div className="filter-controls" style={{ borderBottom: 'none' }}> 
-                
-                {/* Botón de ver todo para TIPO */}
-                <button 
-                    // 🔄 Usamos el estado de TIPO
-                    className={filtroTipoActivo === 'Ver Todo' ? 'active' : ''} 
-                    onClick={() => handleTipoClick('Ver Todo')}
-                >
-                    Ver Todo
-                </button>
+            {/* === FILTROS TIPO === */}
+<h3 className="filter-title">Filtrar por Tipo:</h3>
+<div className="filter-controls no-border">
+  {/* Botón Ver Todo */}
+  <button 
+    className={`filter-chip ${filtroTipoActivo === 'Ver Todo' ? 'active' : ''}`} 
+    onClick={() => handleTipoClick('Ver Todo')}
+  >
+    Ver Todo
+  </button>
 
-                {/* Botones de TIPO/ESTILO */}
-                {subcategoriasTipo.map((cat) => (
-                    <button 
-                        key={cat}
-                        // 🔄 Usamos el estado de TIPO
-                        className={filtroTipoActivo === cat ? 'active' : ''} 
-                        // 🔄 Usamos la nueva función
-                        onClick={() => handleTipoClick(cat)}
-                    >
-                        {cat}
-                    </button>
-                ))}
-            </div>
+  {/* Botones de cada subcategoría */}
+  {subcategoriasTipo.map((cat) => (
+    <button 
+      key={cat}
+      className={`filter-chip ${filtroTipoActivo === cat ? 'active' : ''}`} 
+      onClick={() => handleTipoClick(cat)}
+    >
+      {cat}
+    </button>
+  ))}
+</div>
 
+            {/* === PAGINACIÓN ARRIBA === */}
+            {renderPaginacion()}
 
-            {/* Muestra el mensaje si no hay productos */}
-            {/* 🔄 Usamos la variable consolidada para mostrar el mensaje correcto */}
+            {/* === MENSAJE SIN PRODUCTOS === */}
             {totalProductos === 0 && filtroActivoGeneral !== 'TODOS' && filtroActivoGeneral !== 'Ver Todo' && (
                 <p style={{ fontSize: '1.2em', color: '#CC0000', marginTop: '40px' }}>
                     No hay productos registrados con los filtros activos.
                 </p>
             )}
 
-            {/* Lista de productos */}
+            {/* === LISTA DE PRODUCTOS === */}
             <div className="product-list">
-                {productos.map((producto, index) => (
-                    // Asume que tienes un componente ProductCard
+                {productosPagina.map((producto, index) => (
                     <ProductCard key={index} producto={producto} /> 
                 ))}
             </div>
+
+            {/* === PAGINACIÓN ABAJO === */}
+            {renderPaginacion()}
         </div>
     );
 };
