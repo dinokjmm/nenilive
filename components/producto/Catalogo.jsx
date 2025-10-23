@@ -68,7 +68,7 @@ const Catalogo = ({
                         padding: '4px 8px',
                         borderRadius: '50%',
                         border: '1px solid #ccc',
-                        background: paginaActual === 1 ? '#eee' : '#007bff',
+                        background: paginaActual === 1 ? '#eee' : '#333',
                         color: paginaActual === 1 ? '#999' : '#fff',
                         cursor: paginaActual === 1 ? 'default' : 'pointer'
                     }}
@@ -85,7 +85,7 @@ const Catalogo = ({
                             height: '30px',
                             borderRadius: '50%',
                             border: '1px solid #ccc',
-                            background: num === paginaActual ? '#007bff' : '#f8f8f8',
+                            background: num === paginaActual ? '#333' : '#f8f8f8',
                             color: num === paginaActual ? '#fff' : '#333',
                             fontSize: '14px',
                             cursor: 'pointer',
@@ -102,7 +102,7 @@ const Catalogo = ({
                         padding: '4px 8px',
                         borderRadius: '50%',
                         border: '1px solid #ccc',
-                        background: paginaActual === totalPaginas ? '#eee' : '#007bff',
+                        background: paginaActual === totalPaginas ? '#eee' : '#333',
                         color: paginaActual === totalPaginas ? '#999' : '#fff',
                         cursor: paginaActual === totalPaginas ? 'default' : 'pointer'
                     }}
