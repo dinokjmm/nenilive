@@ -115,7 +115,7 @@ const Catalogo = ({
 
     return (
         <div>
-            <h2>Catálogo en Existencia ({totalProductos})</h2>
+            <h2> Bonjour Belle</h2>
 
             {/* === FILTROS GÉNERO === */}
 <div className="filter-controls">
