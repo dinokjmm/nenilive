@@ -25,9 +25,7 @@ const CATEGORIAS_GENERO = [
 const SUBCATEGORIAS_TIPO = [
   'ZAPATOS', 
   'ROPA', 
-  'DEPORTIVO',
-  'INTERIOR', 
-  'ACCESORIOS', 
+  'OTROS', 
 ];
 
 
