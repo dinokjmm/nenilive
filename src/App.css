@@ -7,6 +7,7 @@
   text-align: center;
   /* El width: 100% asegura que ocupe todo el espacio de su padre (#root) */
   width: 100%; 
+  
 }
 
 /* ⬅️ CRÍTICO: Contenedor principal de la aplicación */
@@ -23,11 +24,3 @@
   transition: filter 300ms;
 }
 /* ... (otros estilos que no afectan el layout principal) ... */
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
