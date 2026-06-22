@@ -16,6 +16,7 @@ const CATEGORIAS_GENERO = [
 const SUBCATEGORIAS_TIPO = [
   'ROPA',
   'ZAPATOS',
+  'INTERIOR',
   'BELLEZA',
   'PERFUMES',
   'CUIDADO PERSONAL',
@@ -44,11 +45,10 @@ function App() {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+
       try {
-        const [productosResponse, linksResponse] = await Promise.all([
-          fetch(`${API_PRODUCTS_URL}/catalogo`),
-          fetch(`${API_LINKS_URL}/activos`)
-        ]);
+        const productosResponse = await fetch(`${API_PRODUCTS_URL}/catalogo`);
 
         if (!productosResponse.ok) {
           throw new Error(`Error productos: ${productosResponse.status}`);
@@ -56,6 +56,13 @@ function App() {
 
         const productosData = await productosResponse.json();
         setProductos(Array.isArray(productosData) ? productosData : []);
+      } catch (error) {
+        console.error('❌ Error al cargar productos:', error);
+        setProductos([]);
+      }
+
+      try {
+        const linksResponse = await fetch(`${API_LINKS_URL}/activos`);
 
         if (linksResponse.ok) {
           const linksData = await linksResponse.json();
@@ -64,8 +71,7 @@ function App() {
           setLinksCatalogo([]);
         }
       } catch (error) {
-        console.error('❌ Error al cargar datos:', error);
-        setProductos([]);
+        console.error('❌ Error al cargar links de catálogo:', error);
         setLinksCatalogo([]);
       } finally {
         setLoading(false);
@@ -76,18 +82,23 @@ function App() {
   }, []);
 
   const productosFiltrados = productos.filter((producto) => {
+    const esDisponiblePublico =
+      normalizar(producto.estatus) === 'DISPONIBLE-PUBLICO';
+
     let pasaFiltroGenero = true;
     let pasaFiltroTipo = true;
 
     if (filtroGenero !== 'Ver Todo') {
-      pasaFiltroGenero = normalizar(producto.categoriaBase) === normalizar(filtroGenero);
+      pasaFiltroGenero =
+        normalizar(producto.categoriaBase) === normalizar(filtroGenero);
     }
 
     if (filtroTipo !== 'Ver Todo') {
-      pasaFiltroTipo = normalizar(producto.subcategoriaSeleccionada) === normalizar(filtroTipo);
+      pasaFiltroTipo =
+        normalizar(producto.subcategoriaSeleccionada) === normalizar(filtroTipo);
     }
 
-    return pasaFiltroGenero && pasaFiltroTipo;
+    return esDisponiblePublico && pasaFiltroGenero && pasaFiltroTipo;
   });
 
   const linksCatalogosPorCiclo = linksCatalogo.filter(
