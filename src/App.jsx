@@ -4,8 +4,8 @@ import { Routes, Route } from 'react-router-dom';
 import Catalogo from '../components/producto/Catalogo';
 import RegistroProducto from '../components/producto/RegistroProducto';
 
-const API_PRODUCTS_URL = 'http://localhost:5000/api/products';
-const API_LINKS_URL = 'http://localhost:5000/api/links-catalogo';
+const API_PRODUCTS_URL = 'https://neni-system-api-production.up.railway.app/api/products';
+const API_LINKS_URL = 'https://neni-system-api-production.up.railway.app/api/links-catalogo';
 
 const CATEGORIAS_GENERO = [
   'DAMA',
