@@ -264,7 +264,10 @@ ${opcionEntrega?.descripcion || ''}`;
         }
 
         const intercambioTexto = tieneIntercambio === 'SI'
-            ? `Sí tengo productos para intercambio.
+            ? `
+
+Intercambio:
+Sí tengo productos para intercambio.
 
 Acepto que:
 - Solo se revisan productos aceptables según la página.
@@ -274,11 +277,15 @@ Acepto que:
 - El precio de consultora solo aplica si manejamos el mismo nivel o descuento equivalente.
 - Todo producto se revisa antes de confirmar el intercambio.
 - El valor final del intercambio se confirma por WhatsApp.`
-            : 'No tengo productos para intercambio.';
+            : '';
 
         const totalTexto = hayDescuentosSeleccionados
             ? `Total productos con descuento: $${totalSeleccionado.toFixed(2)}`
             : `Total productos: $${totalSeleccionado.toFixed(2)}`;
+
+        const cierreMensaje = formaEntrega === 'DOMICILIO'
+            ? '¿Me confirmas disponibilidad y total final con costo de envío?'
+            : '¿Me confirmas disponibilidad?';
 
         const mensaje = `Hola Carly, quiero consultar disponibilidad de estos productos:
 
@@ -287,12 +294,9 @@ ${productosTexto}
 ${totalTexto}
 
 Forma de entrega:
-${entregaTexto}
+${entregaTexto}${intercambioTexto}
 
-Intercambio:
-${intercambioTexto}
-
-¿Me confirmas disponibilidad y total con costo de envío?`;
+${cierreMensaje}`;
 
         const url = `https://wa.me/${telefonoWhatsApp}?text=${encodeURIComponent(mensaje)}`;
         window.open(url, '_blank');
