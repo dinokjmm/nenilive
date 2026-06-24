@@ -1,11 +1,85 @@
 // src/components/producto/catalogo/catalogoUtils.js
 
 export const normalizar = (valor) => {
-    return String(valor || '').toLowerCase().trim();
+    return String(valor || '')
+        .toLowerCase()
+        .trim()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
 };
 
 export const normalizarMayus = (valor) => {
-    return String(valor || '').toUpperCase().trim();
+    return String(valor || '')
+        .toUpperCase()
+        .trim()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+};
+
+export const normalizarClave = (valor) => {
+    return String(valor || '')
+        .toUpperCase()
+        .trim()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[’']/g, '')
+        .replace(/\s+/g, '')
+        .replace(/-/g, '');
+};
+
+export const normalizarDescuento = (valor) => {
+    return String(valor || '')
+        .trim()
+        .toUpperCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[’']/g, '');
+};
+
+const MARCAS_CATALOGO = [
+    {
+        nombre: 'NATURA',
+        claves: ['NATURA']
+    },
+    {
+        nombre: "L'BEL",
+        claves: ['LBEL', 'LBELPARIS']
+    },
+    {
+        nombre: 'JAFRA',
+        claves: ['JAFRA']
+    },
+    {
+        nombre: 'AVON',
+        claves: ['AVON']
+    },
+    {
+        nombre: 'CYZONE',
+        claves: ['CYZONE']
+    },
+    {
+        nombre: 'ESIKA',
+        claves: ['ESIKA']
+    }
+];
+
+const detectarMarcaCatalogo = (...valores) => {
+    const texto = valores
+        .map(valor => normalizarClave(valor))
+        .filter(Boolean)
+        .join(' ');
+
+    for (const marca of MARCAS_CATALOGO) {
+        const encontrada = marca.claves.some(clave => {
+            return texto.includes(normalizarClave(clave));
+        });
+
+        if (encontrada) {
+            return marca.nombre;
+        }
+    }
+
+    return null;
 };
 
 export const obtenerPrecio = (producto) => {
@@ -17,23 +91,87 @@ export const obtenerPrecio = (producto) => {
     );
 };
 
-export const obtenerMarca = (producto) => {
-    const marcaDirecta = producto.marca || producto.brand || '';
-    const descripcion = normalizar(producto.descripcion);
+export const obtenerDescuentoProducto = (producto, descuentosSubcategoria = {}) => {
+    const categoria = normalizarDescuento(producto.categoriaBase);
+    const subcategoria = normalizarDescuento(producto.subcategoriaSeleccionada);
+    const llave = `${categoria}__${subcategoria}`;
 
-    if (marcaDirecta) {
-        return marcaDirecta;
+    return descuentosSubcategoria[llave] || null;
+};
+
+export const calcularPrecioProductoCatalogo = (producto, descuentosSubcategoria = {}) => {
+    const precioOriginal = obtenerPrecio(producto);
+    const descuento = obtenerDescuentoProducto(producto, descuentosSubcategoria);
+
+    if (!descuento || descuento.activo !== true) {
+        return {
+            precioOriginal,
+            precioFinal: precioOriginal,
+            descuentoAplicado: 0,
+            tieneDescuento: false,
+            etiquetaDescuento: ''
+        };
     }
 
-    if (descripcion.includes('natura')) return 'NATURA';
-    if (descripcion.includes('jafra')) return 'JAFRA';
+    const valorDescuento = Number(descuento.valor || 0);
+    const tipoDescuento = normalizarMayus(descuento.tipo);
+
+    let descuentoAplicado = 0;
+
+    if (tipoDescuento === 'PORCENTAJE') {
+        descuentoAplicado = precioOriginal * (valorDescuento / 100);
+    }
+
+    if (tipoDescuento === 'MONTO') {
+        descuentoAplicado = valorDescuento;
+    }
+
+    if (descuentoAplicado <= 0) {
+        return {
+            precioOriginal,
+            precioFinal: precioOriginal,
+            descuentoAplicado: 0,
+            tieneDescuento: false,
+            etiquetaDescuento: ''
+        };
+    }
+
+    const precioFinal = Math.max(precioOriginal - descuentoAplicado, 0);
+
+    return {
+        precioOriginal,
+        precioFinal,
+        descuentoAplicado,
+        tieneDescuento: precioFinal < precioOriginal,
+        etiquetaDescuento: descuento.etiqueta || ''
+    };
+};
+
+export const obtenerMarca = (producto) => {
+    const marcaDirecta = producto.marca || producto.brand || '';
+    const subcategoria = producto.subcategoriaSeleccionada || '';
+    const descripcion = producto.descripcion || '';
+    const codigo = producto.codigo || '';
+
+    const marcaDirectaNormalizada = normalizarClave(marcaDirecta);
 
     if (
-        descripcion.includes('lbel') ||
-        descripcion.includes("l'bel") ||
-        descripcion.includes('l bel')
+        marcaDirecta &&
+        marcaDirectaNormalizada !== normalizarClave('SIN MARCA')
     ) {
-        return "L'BEL";
+        const marcaCatalogo = detectarMarcaCatalogo(marcaDirecta);
+
+        return marcaCatalogo || marcaDirecta;
+    }
+
+    const marcaDetectada = detectarMarcaCatalogo(
+        subcategoria,
+        descripcion,
+        codigo
+    );
+
+    if (marcaDetectada) {
+        return marcaDetectada;
     }
 
     return 'SIN MARCA';
@@ -64,6 +202,7 @@ export const filtrarProductosCatalogo = ({
     filtroMarca
 }) => {
     const textoBusqueda = normalizar(busqueda);
+    const marcaFiltro = normalizarClave(filtroMarca);
 
     return productos.filter((producto) => {
         const codigo = normalizar(producto.codigo);
@@ -79,10 +218,13 @@ export const filtrarProductosCatalogo = ({
             subcategoria.includes(textoBusqueda) ||
             marca.includes(textoBusqueda);
 
-        const marcaProducto = normalizarMayus(obtenerMarca(producto)).replace("'", '');
-        const marcaFiltro = normalizarMayus(filtroMarca).replace("'", '');
+        const marcaProducto = normalizarClave(obtenerMarca(producto));
+        const subcategoriaProducto = normalizarClave(producto.subcategoriaSeleccionada);
 
-        const pasaMarca = filtroMarca === 'Ver Todo' || marcaProducto === marcaFiltro;
+        const pasaMarca =
+            marcaFiltro === normalizarClave('Ver Todo') ||
+            marcaProducto === marcaFiltro ||
+            subcategoriaProducto === marcaFiltro;
 
         return pasaBusqueda && pasaMarca;
     });
@@ -109,6 +251,7 @@ export const construirCalendarioEntregas = (puntosEntregaBD = []) => {
         };
     });
 };
+
 export const obtenerProductosIntercambioDefault = () => ([
     {
         id: 'ropa-nino',
@@ -184,7 +327,6 @@ export const obtenerProductosIntercambioDefault = () => ([
         nota: 'No se aceptan jabones líquidos.'
     }
 ]);
-
 
 export const obtenerOpcionesEntregaDefault = () => ([
     {

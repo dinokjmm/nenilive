@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 
-const ProductoCard = ({ producto, isReserved, selected, onToggleSelect, marca }) => {
+const ProductoCard = ({
+    producto,
+    isReserved,
+    selected,
+    onToggleSelect,
+    marca,
+    descuentoInfo
+}) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [mostrarImagenGrande, setMostrarImagenGrande] = useState(false);
 
@@ -21,6 +28,18 @@ const ProductoCard = ({ producto, isReserved, selected, onToggleSelect, marca })
         producto.precio ??
         0
     );
+
+    const tieneDescuento = descuentoInfo?.tieneDescuento === true;
+
+    const precioOriginal = tieneDescuento
+        ? Number(descuentoInfo.precioOriginal || 0)
+        : precioLocal;
+
+    const precioFinal = tieneDescuento
+        ? Number(descuentoInfo.precioFinal || 0)
+        : precioLocal;
+
+    const etiquetaDescuento = descuentoInfo?.etiquetaDescuento || 'Promo';
 
     const tallasTexto = producto.tallas && producto.tallas.length > 0
         ? producto.tallas.join(', ')
@@ -64,8 +83,6 @@ const ProductoCard = ({ producto, isReserved, selected, onToggleSelect, marca })
         <>
             <div className={cardClass}>
                 <div className="product-image-wrapper">
-          
-
                     {selected && !isReserved && (
                         <div className="selected-ribbon">
                             Seleccionado
@@ -78,26 +95,32 @@ const ProductoCard = ({ producto, isReserved, selected, onToggleSelect, marca })
                         </div>
                     )}
 
+                    {tieneDescuento && !isReserved && (
+                        <div className="discount-ribbon">
+                            {etiquetaDescuento}
+                        </div>
+                    )}
+
                     {marca && marca !== 'SIN MARCA' && (
                         <div className="brand-ribbon">
                             {marca}
                         </div>
                     )}
 
-<img
-    src={imageUrl}
-    alt={producto.descripcion || 'Producto'}
-    className="product-image"
-/>
+                    <img
+                        src={imageUrl}
+                        alt={producto.descripcion || 'Producto'}
+                        className="product-image"
+                    />
 
-<button
-    type="button"
-    className="product-image-button"
-    onClick={abrirImagenGrande}
-    title="Ver imagen grande"
->
-    🔍 Ver
-</button>
+                    <button
+                        type="button"
+                        className="product-image-button"
+                        onClick={abrirImagenGrande}
+                        title="Ver imagen grande"
+                    >
+                        🔍 Ver
+                    </button>
 
                     {totalFotos > 1 && (
                         <>
@@ -138,9 +161,25 @@ const ProductoCard = ({ producto, isReserved, selected, onToggleSelect, marca })
                         <span>Talla: {tallasTexto}</span>
                     </div>
 
-                    <strong className="price-main">
-                        ${precioLocal.toFixed(2)} MXN
-                    </strong>
+                    {tieneDescuento ? (
+                        <div className="price-discount-box">
+                            <span className="price-old">
+                                ${precioOriginal.toFixed(2)} MXN
+                            </span>
+
+                            <strong className="price-main price-discount">
+                                ${precioFinal.toFixed(2)} MXN
+                            </strong>
+
+                            <span className="price-discount-label">
+                                {etiquetaDescuento}
+                            </span>
+                        </div>
+                    ) : (
+                        <strong className="price-main">
+                            ${precioLocal.toFixed(2)} MXN
+                        </strong>
+                    )}
 
                     <button
                         type="button"

@@ -21,12 +21,12 @@ import useLinksCatalogo from './hooks/useLinksCatalogo';
 import { cotizarEnvioPorCodigoPostal } from '../../services/zonasEntregaService';
 
 import {
+    calcularPrecioProductoCatalogo,
     construirCalendarioEntregas,
     filtrarProductosCatalogo,
     obtenerIdProducto,
     obtenerMarca,
     obtenerOpcionesEntregaDefault,
-    obtenerPrecio,
     obtenerProductosIntercambioDefault,
     productoEstaSeleccionado,
     productoNoDisponible
@@ -40,8 +40,11 @@ const Catalogo = ({
     categoriasGenero,
     onFiltroTipoChange,
     filtroTipoActivo,
-    subcategoriasTipo,
-    marcas = []
+    subcategoriasTipo = [],
+    marcas = [],
+    descuentosSubcategoria = {},
+    linksCatalogos: linksCatalogosProps = [],
+    linksTiendasOnline: linksTiendasOnlineProps = []
 }) => {
     const [paginaActual, setPaginaActual] = useState(1);
     const [busqueda, setBusqueda] = useState('');
@@ -67,10 +70,18 @@ const Catalogo = ({
     } = usePuntosEntrega();
 
     const {
-        linksCatalogos,
-        linksTiendasOnline,
+        linksCatalogos: linksCatalogosHook,
+        linksTiendasOnline: linksTiendasOnlineHook,
         cargandoLinks
     } = useLinksCatalogo();
+
+    const linksCatalogos = linksCatalogosProps.length > 0
+        ? linksCatalogosProps
+        : linksCatalogosHook;
+
+    const linksTiendasOnline = linksTiendasOnlineProps.length > 0
+        ? linksTiendasOnlineProps
+        : linksTiendasOnlineHook;
 
     const opcionesEntrega = obtenerOpcionesEntregaDefault();
     const productosIntercambio = obtenerProductosIntercambioDefault();
@@ -94,8 +105,14 @@ const Catalogo = ({
     const totalPaginas = Math.ceil(productosConBusqueda.length / productosPorPagina);
 
     const totalSeleccionado = productosSeleccionados.reduce((total, producto) => {
-        return total + obtenerPrecio(producto);
+        const precioInfo = calcularPrecioProductoCatalogo(producto, descuentosSubcategoria);
+        return total + precioInfo.precioFinal;
     }, 0);
+
+    const hayDescuentosSeleccionados = productosSeleccionados.some((producto) => {
+        const precioInfo = calcularPrecioProductoCatalogo(producto, descuentosSubcategoria);
+        return precioInfo.tieneDescuento;
+    });
 
     const toggleProducto = (producto) => {
         if (productoNoDisponible(producto)) {
@@ -196,14 +213,18 @@ const Catalogo = ({
             .map((producto, index) => {
                 const codigo = producto.codigo || 'Sin código';
                 const descripcion = producto.descripcion || 'Sin descripción';
-                const precio = obtenerPrecio(producto).toFixed(2);
                 const marca = obtenerMarca(producto);
+                const precioInfo = calcularPrecioProductoCatalogo(producto, descuentosSubcategoria);
 
                 const tallas = producto.tallas && producto.tallas.length > 0
                     ? ` | Talla(s): ${producto.tallas.join(', ')}`
                     : '';
 
-                return `${index + 1}. ${codigo} - ${descripcion}${tallas} - ${marca} - $${precio}`;
+                const precioTexto = precioInfo.tieneDescuento
+                    ? `$${precioInfo.precioOriginal.toFixed(2)} → $${precioInfo.precioFinal.toFixed(2)} (${precioInfo.etiquetaDescuento || 'Promo'})`
+                    : `$${precioInfo.precioFinal.toFixed(2)}`;
+
+                return `${index + 1}. ${codigo} - ${descripcion}${tallas} - ${marca} - ${precioTexto}`;
             })
             .join('\n');
 
@@ -255,11 +276,15 @@ Acepto que:
 - El valor final del intercambio se confirma por WhatsApp.`
             : 'No tengo productos para intercambio.';
 
+        const totalTexto = hayDescuentosSeleccionados
+            ? `Total productos con descuento: $${totalSeleccionado.toFixed(2)}`
+            : `Total productos: $${totalSeleccionado.toFixed(2)}`;
+
         const mensaje = `Hola Carly, quiero consultar disponibilidad de estos productos:
 
 ${productosTexto}
 
-Total productos: $${totalSeleccionado.toFixed(2)}
+${totalTexto}
 
 Forma de entrega:
 ${entregaTexto}
@@ -287,6 +312,7 @@ ${intercambioTexto}
     const handleGeneroClick = (filtro) => {
         onFiltroTipoChange('Ver Todo');
         onFiltroGeneroChange(filtro);
+        setFiltroMarca('Ver Todo');
         setPaginaActual(1);
     };
 
@@ -308,8 +334,9 @@ ${intercambioTexto}
     const limpiarFiltros = () => {
         setBusqueda('');
         setFiltroMarca('Ver Todo');
-        handleGeneroClick('Ver Todo');
-        handleTipoClick('Ver Todo');
+        onFiltroGeneroChange('Ver Todo');
+        onFiltroTipoChange('Ver Todo');
+        setPaginaActual(1);
     };
 
     const irASeccion = (idSeccion) => {
@@ -343,31 +370,41 @@ ${intercambioTexto}
             <FiltrosCatalogo
                 busqueda={busqueda}
                 onBusquedaChange={handleBusquedaChange}
+                filtroGeneroActivo={filtroGeneroActivo}
                 filtroTipoActivo={filtroTipoActivo}
-                filtroMarca={filtroMarca}
                 limpiarFiltros={limpiarFiltros}
+                handleGeneroClick={handleGeneroClick}
                 handleTipoClick={handleTipoClick}
-                handleMarcaClick={handleMarcaClick}
                 irASeccion={irASeccion}
+                categoriasGenero={categoriasGenero}
+                subcategoriasTipo={subcategoriasTipo}
             />
 
             {productosConBusqueda.length === 0 ? (
                 <div className="empty-catalog">
                     <p>No hay productos con esos filtros.</p>
-                    <span>Prueba buscar otra categoría, marca o limpiar filtros.</span>
+                    <span>Prueba buscar otra categoría o limpiar filtros.</span>
                 </div>
             ) : (
                 <div className="product-list">
-                    {productosPagina.map((producto, index) => (
-                        <ProductCard
-                            key={producto._id || producto.codigo || index}
-                            producto={producto}
-                            isReserved={productoNoDisponible(producto)}
-                            selected={productoEstaSeleccionado(producto, productosSeleccionados)}
-                            onToggleSelect={() => toggleProducto(producto)}
-                            marca={obtenerMarca(producto)}
-                        />
-                    ))}
+                    {productosPagina.map((producto, index) => {
+                        const descuentoInfo = calcularPrecioProductoCatalogo(
+                            producto,
+                            descuentosSubcategoria
+                        );
+
+                        return (
+                            <ProductCard
+                                key={producto._id || producto.codigo || index}
+                                producto={producto}
+                                isReserved={productoNoDisponible(producto)}
+                                selected={productoEstaSeleccionado(producto, productosSeleccionados)}
+                                onToggleSelect={() => toggleProducto(producto)}
+                                marca={obtenerMarca(producto)}
+                                descuentoInfo={descuentoInfo}
+                            />
+                        );
+                    })}
                 </div>
             )}
 
@@ -380,16 +417,18 @@ ${intercambioTexto}
             <EntregasSection
                 calendarioEntregas={calendarioEntregas}
                 cargandoPuntosEntrega={cargandoPuntosEntrega}
-            /><p> </p>
+            />
+
+            <p> </p>
+
             <CatalogosExternos
                 linksCatalogos={linksCatalogos}
                 linksTiendasOnline={linksTiendasOnline}
                 cargandoLinks={cargandoLinks}
                 abrirLinkExterno={abrirLinkExterno}
             />
-            <IntercambioSection productosIntercambio={productosIntercambio} />
 
-            
+            <IntercambioSection productosIntercambio={productosIntercambio} />
 
             <BottomWhatsappBar
                 productosSeleccionados={productosSeleccionados}

@@ -1666,3 +1666,93 @@ body {
     line-height: 1.35;
     border: 1px solid #e9b7cf;
 }
+.catalog-filters {
+    margin: 14px 0 20px;
+}
+
+.catalog-filters .top-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.catalog-filters .top-chip {
+    white-space: nowrap;
+}
+
+.filter-collapse {
+    margin-top: 10px;
+    border: 1px solid #f0d4e1;
+    border-radius: 14px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.filter-collapse summary {
+    cursor: pointer;
+    padding: 10px 12px;
+    font-weight: 700;
+    color: #8a3d61;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.filter-collapse summary span {
+    font-size: 12px;
+    font-weight: 600;
+    background: #f8e6ef;
+    color: #8a3d61;
+    border-radius: 999px;
+    padding: 2px 8px;
+}
+
+.filter-collapse .top-chips {
+    padding: 10px 12px 12px;
+}
+/* ===============================
+   DESCUENTOS EN PRODUCTO
+================================ */
+
+.discount-ribbon {
+    position: absolute;
+    top: 42px;
+    left: 10px;
+    z-index: 5;
+    background: #ff4f8b;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 5px 9px;
+    border-radius: 999px;
+    box-shadow: 0 4px 10px rgba(255, 79, 139, 0.35);
+}
+
+.price-discount-box {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 6px 0 10px;
+}
+
+.price-old {
+    font-size: 13px;
+    color: #999;
+    text-decoration: line-through;
+    font-weight: 600;
+}
+
+.price-main.price-discount {
+    color: #d6246f;
+}
+
+.price-discount-label {
+    width: fit-content;
+    background: #fff0f6;
+    color: #c2185b;
+    border: 1px solid #f7b6d0;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 8px;
+}

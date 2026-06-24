@@ -4,13 +4,36 @@ import React from 'react';
 const FiltrosCatalogo = ({
     busqueda,
     onBusquedaChange,
+    filtroGeneroActivo,
     filtroTipoActivo,
-    filtroMarca,
     limpiarFiltros,
+    handleGeneroClick,
     handleTipoClick,
-    handleMarcaClick,
-    irASeccion
+    irASeccion,
+    categoriasGenero = [],
+    subcategoriasTipo = []
 }) => {
+    const normalizar = (valor) => {
+        return String(valor || '')
+            .trim()
+            .toUpperCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[’']/g, '');
+    };
+
+    const esGeneroActivo = (categoria) => {
+        return normalizar(filtroGeneroActivo) === normalizar(categoria);
+    };
+
+    const esTipoActivo = (subcategoria) => {
+        return normalizar(filtroTipoActivo) === normalizar(subcategoria);
+    };
+
+    const estaTodoActivo =
+        normalizar(filtroGeneroActivo) === normalizar('Ver Todo') &&
+        normalizar(filtroTipoActivo) === normalizar('Ver Todo');
+
     return (
         <>
             <section id="seccion-productos" className="catalog-title-row section-anchor">
@@ -24,65 +47,70 @@ const FiltrosCatalogo = ({
                     type="text"
                     value={busqueda}
                     onChange={onBusquedaChange}
-                    placeholder="Buscar por código, marca o producto"
+                    placeholder="Buscar por código o producto"
                     className="catalog-search-input"
                 />
                 <span className="scan-icon">⌗</span>
             </div>
 
-            <section className="top-chips">
-                <button
-                    className={`top-chip ${filtroTipoActivo === 'Ver Todo' && filtroMarca === 'Ver Todo' ? 'active' : ''}`}
-                    onClick={limpiarFiltros}
-                >
-                    Todo
-                </button>
+            <section className="catalog-filters">
+                <div className="top-chips">
+                    <button
+                        className={`top-chip ${estaTodoActivo ? 'active' : ''}`}
+                        onClick={limpiarFiltros}
+                    >
+                        Todo
+                    </button>
 
-                <button
-                    className={`top-chip ${filtroTipoActivo === 'ROPA' ? 'active' : ''}`}
-                    onClick={() => handleTipoClick('ROPA')}
-                >
-                    Ropa
-                </button>
+                    <button
+                        className="top-chip"
+                        onClick={() => irASeccion('seccion-intercambio')}
+                    >
+                        Intercambio
+                    </button>
+                </div>
 
-                <button
-                    className={`top-chip ${filtroTipoActivo === 'ZAPATOS' ? 'active' : ''}`}
-                    onClick={() => handleTipoClick('ZAPATOS')}
-                >
-                    Zapatos
-                </button>
+                {categoriasGenero.length > 0 && (
+                    <details className="filter-collapse" open>
+                        <summary>
+                            Categorías
+                            <span>{categoriasGenero.length}</span>
+                        </summary>
 
-                <button
-                    className={`top-chip ${filtroMarca === 'NATURA' ? 'active' : ''}`}
-                    onClick={() => handleMarcaClick('NATURA')}
-                >
-                    Natura
-                </button>
+                        <div className="top-chips">
+                            {categoriasGenero.map((categoria) => (
+                                <button
+                                    key={categoria}
+                                    className={`top-chip ${esGeneroActivo(categoria) ? 'active' : ''}`}
+                                    onClick={() => handleGeneroClick(categoria)}
+                                >
+                                    {categoria}
+                                </button>
+                            ))}
+                        </div>
+                    </details>
+                )}
 
-                <button
-                    className={`top-chip ${filtroMarca === "L'BEL" ? 'active' : ''}`}
-                    onClick={() => handleMarcaClick("L'BEL")}
-                >
-                    L&apos;Bel
-                </button>
+                {normalizar(filtroGeneroActivo) !== normalizar('Ver Todo') && subcategoriasTipo.length > 0 && (
+                    <details className="filter-collapse" open>
+                        <summary>
+                            Subcategorías de {filtroGeneroActivo}
+                            <span>{subcategoriasTipo.length}</span>
+                        </summary>
 
-                <button
-                    className={`top-chip ${filtroMarca === 'JAFRA' ? 'active' : ''}`}
-                    onClick={() => handleMarcaClick('JAFRA')}
-                >
-                    Jafra
-                </button>
-
-                <button
-                    className={`top-chip ${filtroTipoActivo === 'ACCESORIOS' ? 'active' : ''}`}
-                    onClick={() => handleTipoClick('ACCESORIOS')}
-                >
-                    Accesorios
-                </button>
-
-                <button className="top-chip" onClick={() => irASeccion('seccion-intercambio')}>
-                    Intercambio
-                </button>
+                        <div className="top-chips">
+                            {subcategoriasTipo.map((subcategoria) => (
+                                <button
+                                    key={subcategoria}
+                                    className={`top-chip ${esTipoActivo(subcategoria) ? 'active' : ''}`}
+                                    onClick={() => handleTipoClick(subcategoria)}
+                                >
+                                    {subcategoria}
+                                </button>
+                            ))}
+                        </div>
+                    </details>
+                )}
             </section>
         </>
     );
