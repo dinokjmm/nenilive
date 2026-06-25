@@ -41,9 +41,54 @@ const ProductoCard = ({
 
     const etiquetaDescuento = descuentoInfo?.etiquetaDescuento || 'Promo';
 
-    const tallasTexto = producto.tallas && producto.tallas.length > 0
-        ? producto.tallas.join(', ')
-        : 'Única';
+    const normalizarTexto = (texto) => {
+        return String(texto || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toUpperCase()
+            .trim();
+    };
+
+    const categoriaProducto = normalizarTexto(
+        `${producto.categoriaBase || ''} ${producto.categoria || ''} ${producto.tipo || ''} ${producto.subcategoriaSeleccionada || ''}`
+    );
+
+    const esCatalogo = categoriaProducto.includes('CATALOGO');
+
+    const obtenerTallasTexto = () => {
+        if (Array.isArray(producto.tallas) && producto.tallas.length > 0) {
+            return producto.tallas
+                .map((talla) => {
+                    if (typeof talla === 'string' || typeof talla === 'number') {
+                        return talla;
+                    }
+
+                    if (typeof talla === 'object' && talla !== null) {
+                        return talla.nombre || talla.talla || talla.valor || '';
+                    }
+
+                    return '';
+                })
+                .filter(Boolean)
+                .join(', ');
+        }
+
+        if (producto.tallaSeleccionada) {
+            return producto.tallaSeleccionada;
+        }
+
+        if (producto.talla) {
+            return producto.talla;
+        }
+
+        if (producto.tallaProducto) {
+            return producto.tallaProducto;
+        }
+
+        return 'Única';
+    };
+
+    const tallasTexto = obtenerTallasTexto();
 
     const nextImage = (event) => {
         if (event) {
@@ -158,8 +203,13 @@ const ProductoCard = ({
 
                     <div className="product-details">
                         <span>{producto.subcategoriaSeleccionada || 'Producto'}</span>
-                        <span>Talla: {tallasTexto}</span>
                     </div>
+
+                    {!esCatalogo && (
+                        <div className="product-sizes">
+                            <strong>Talla:</strong> {tallasTexto}
+                        </div>
+                    )}
 
                     {tieneDescuento ? (
                         <div className="price-discount-box">
@@ -170,10 +220,6 @@ const ProductoCard = ({
                             <strong className="price-main price-discount">
                                 ${precioFinal.toFixed(2)} MXN
                             </strong>
-
-                            <span className="price-discount-label">
-                                {etiquetaDescuento}
-                            </span>
                         </div>
                     ) : (
                         <strong className="price-main">
@@ -246,6 +292,10 @@ const ProductoCard = ({
                         <div className="image-lightbox-info">
                             <strong>{producto.descripcion || 'Producto'}</strong>
                             <span>{producto.codigo || 'Sin código'}</span>
+
+                            {!esCatalogo && (
+                                <span>Talla: {tallasTexto}</span>
+                            )}
                         </div>
                     </div>
                 </div>

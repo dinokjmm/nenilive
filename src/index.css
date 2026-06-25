@@ -1756,3 +1756,17 @@ body {
     font-weight: 800;
     padding: 3px 8px;
 }
+.product-sizes {
+    margin-top: 6px;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: #7a4b5c;
+    background: #fff5f8;
+    border-radius: 999px;
+    padding: 5px 10px;
+    display: inline-block;
+}
+
+.product-sizes strong {
+    color: #9f4f6b;
+}
